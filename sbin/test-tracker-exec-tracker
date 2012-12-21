@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use TestTracker::Executor;
+
+TestTracker::Executor::main('test-tracker-exec-tracker-helper', @ARGV);
