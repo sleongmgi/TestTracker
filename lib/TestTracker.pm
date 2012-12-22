@@ -113,7 +113,9 @@ sub tests_for_git_changes {
     if (@changed_files) {
         push @tests, tests_for_git_files(@changed_files);
     }
-    return map { File::Spec->abs2rel($_) } absolute_files(@tests);
+    # Convert "git path" to "absolute path" and then to "relative path"
+    my @rel_tests = map { File::Spec->abs2rel($_) } absolute_files(@tests);
+    return grep { -f $_ } @rel_tests;
 }
 
 sub parse_args {
