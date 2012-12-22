@@ -1,3 +1,9 @@
+libtesttracker-perl (0.004) precise; urgency=low
+
+  * Bugfixes.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Sat, 22 Dec 2012 13:30:44 -0600
+
 libtesttracker-perl (0.003-1) unstable; urgency=low
 
   * Initial Release.
