@@ -3,6 +3,7 @@ package TestTracker;
 use strict;
 use warnings;
 
+use IPC::System::Simple; # needed for autodie's :system
 use autodie qw(:system);
 use DBI;
 use File::Spec;
