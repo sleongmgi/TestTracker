@@ -1,5 +1,5 @@
 ---
-abstract: 'Track Perl module and test relationship so you can guess what are the best tests to run.'
+abstract: 'Track Perl module and test relationships so you can guess what are the best tests to run.'
 author:
   - 'dmorton and nnutter'
 build_requires: {}
@@ -28,4 +28,4 @@ requires:
   autodie: 0
   strict: 0
   warnings: 0
-version: 0.004
+version: 0.005

@@ -6,11 +6,11 @@ README
 README.md
 bin/test-tracker
 bin/test-tracker-exec-lsf
+bin/test-tracker-exec-tracker
+bin/test-tracker-exec-tracker-helper
 bin/test-tracker-list
 bin/test-tracker-prove
 dist.ini
 lib/TestTracker.pm
 lib/TestTracker/Config.pm
 lib/TestTracker/Executor.pm
-sbin/test-tracker-exec-tracker
-sbin/test-tracker-exec-tracker-helper

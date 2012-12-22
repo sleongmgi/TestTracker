@@ -9,7 +9,7 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "Track Perl module and test relationship so you can guess what are the best tests to run.",
+  "ABSTRACT" => "Track Perl module and test relationships so you can guess what are the best tests to run.",
   "AUTHOR" => "dmorton and nnutter",
   "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
@@ -20,7 +20,9 @@ my %WriteMakefileArgs = (
     "bin/test-tracker",
     "bin/test-tracker-list",
     "bin/test-tracker-prove",
-    "bin/test-tracker-exec-lsf"
+    "bin/test-tracker-exec-lsf",
+    "bin/test-tracker-exec-tracker",
+    "bin/test-tracker-exec-tracker-helper"
   ],
   "LICENSE" => "perl",
   "NAME" => "TestTracker",
@@ -41,7 +43,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.004",
+  "VERSION" => "0.005",
   "test" => {
     "TESTS" => ""
   }
