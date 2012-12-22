@@ -1,0 +1,29 @@
+---
+abstract: 'Track Perl module and test relationship so you can guess what are the best tests to run.'
+author:
+  - 'dmorton and nnutter'
+build_requires: {}
+configure_requires:
+  ExtUtils::MakeMaker: 6.30
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120921'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: TestTracker
+requires:
+  Carp: 0
+  DBI: 0
+  Data::UUID: 0
+  Exporter: 0
+  File::Path: 0
+  File::Spec: 0
+  Getopt::Long: 0
+  IO::File: 0
+  List::MoreUtils: 0
+  Pod::Usage: 0
+  autodie: 0
+  strict: 0
+  warnings: 0
+version: 0.001

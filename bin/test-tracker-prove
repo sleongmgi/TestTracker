@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use Data::UUID;
+use File::Path qw(make_path);
+use File::Spec;
+use TestTracker::Config qw($lsf_log_dir);
+use TestTracker;
+use Pod::Usage;
+
+my %options = TestTracker::parse_args(
+    pass_through => 1,
+    'track' => 'track',
+    'lsf'   => 'lsf',
+);
+
+if ($options{'track'} && $options{'lsf'}) {
+    die '--track and --lsf are mutually exclusive options.';
+}
+
+if ($options{'track'} || $options{'lsf'}) {
+    setup_log_directory();
+}
+
+if ($options{'lsf'}) {
+    unshift @ARGV, '--exec', 'test-tracker-exec-lsf';
+}
+
+if ($options{'track'}) {
+    unshift @ARGV, '--exec', 'test-tracker-exec-tracker';
+}
+
+if ($options{'git'}) {
+    my @tests = TestTracker::tests_for_git_changes($options{'git'});
+    unless (@tests) {
+        print STDERR "No tests to run based on Git changes.\n";
+        exit 1;
+    }
+    printf STDERR "Found %d tests to run based on Git changes.\n", scalar(@tests);
+    push @ARGV, @tests;
+}
+
+exec 'prove', @ARGV;
+
+sub setup_log_directory {
+    my $workspace = $lsf_log_dir;
+    my $username = getpwuid($>);
+    my $uuid_generator = new Data::UUID;
+    my $uuid = $uuid_generator->create_str();
+
+    # Since we are doing a make_path
+    die "cannot find workspace at $workspace" unless -d $workspace;
+
+    my $log_directory = File::Spec->join($workspace, "test_logs", $username, $uuid);
+    make_path($log_directory);
+    die "couldn't create $log_directory" unless -d $log_directory;
+
+    $ENV{TESTTRACKER_LOG_DIR} = $log_directory;
+}
+
+__END__
+
+=head1 NAME
+
+    test-tracker-prove - Wrapper for `prove` that allows submission to LSF and detection of tests to run based on Git changes.
+
+=head1 SYNOPSIS
+
+    test-tracker-prove [options] [test_path ...]
+
+     Options:
+       --lsf                                bsub test(s) to your LSF cluster
+       --git [<since>..<until>]             determine test(s) to run from Git changes
+       --help                               brief help message
+       --man                                full documentation
+
+=cut

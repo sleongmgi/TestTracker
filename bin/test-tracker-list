@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use List::MoreUtils qw(uniq);
+use Pod::Usage;
+use TestTracker;
+
+my %options = TestTracker::parse_args();
+
+my @files = @ARGV;
+my @nonfiles = grep { ! -f $_ } @files;
+if (@nonfiles) {
+    printf STDERR ("ERROR: Nonfiles passed in arguments:\n%s\n", join("\n", @nonfiles));
+    exit 1;
+}
+
+if (!defined($options{'git'}) && !@files) {
+    pod2usage(2);
+}
+
+my @tests;
+if (defined $options{'git'}) {
+    my @git_tests = TestTracker::tests_for_git_changes($options{'git'});
+    unless (@git_tests) {
+        print STDERR "No tests to run based on Git changes.\n";
+        exit 1;
+    }
+    push @tests, @git_tests;
+}
+
+if (@files) {
+    my @abs_files = File::Spec->rel2abs(@files);
+    my @git_files = TestTracker::git_files(@abs_files);
+    push @tests, TestTracker::tests_for_git_files(@git_files);
+}
+
+print join("\n", uniq @tests), "\n";
+
+__END__
+
+=head1 NAME
+
+   test-tracker-list - List tests for given module paths or based on Git changes.
+
+=head1 SYNOPSIS
+
+   test-tracker-list [options] [module_path ...]
+
+     Options:
+       --git [<since>..<until>]             determine test(s) to run from Git changes
+       --help                               brief help message
+       --man                                full documentation
+
+=cut
