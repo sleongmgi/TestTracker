@@ -8,10 +8,6 @@ Usage: test-tracker <subcommand>
 
 Available subcommands are:
    list
-<<<<<<< HEAD
-   list-git
-=======
->>>>>>> upstream/0.004
    prove
 
 Try 'test-tracker <subcommand> --help' for details."
@@ -21,7 +17,7 @@ usage() {
 
 main() {
     SUBCOMMAND="$1"
-    shift
+    shift || true
 
     case $SUBCOMMAND in
         list|prove)
@@ -44,4 +40,4 @@ main() {
     fi
 }
 
-main $@
+main "$@"
