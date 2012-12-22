@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+set -o errexit
+
+USAGE="\
+Usage: test-tracker <subcommand>
+
+Available subcommands are:
+   list
+   prove
+
+Try 'test-tracker <subcommand> --help' for details."
+usage() {
+    echo "$USAGE"
+}
+
+main() {
+    SUBCOMMAND="$1"
+    shift || true
+
+    case $SUBCOMMAND in
+        list|prove)
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
+
+    SUBCOMMAND_FILE="$(which test-tracker-$SUBCOMMAND)"
+    if [ ! -e "$SUBCOMMAND_FILE" ]; then
+        usage
+    else
+        exec "$SUBCOMMAND_FILE" "$@"
+    fi
+}
+
+main "$@"
