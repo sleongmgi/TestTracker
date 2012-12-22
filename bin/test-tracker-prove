@@ -14,6 +14,7 @@ my %options = TestTracker::parse_args(
     pass_through => 1,
     'track' => 'track',
     'lsf'   => 'lsf',
+    'jobs'  => 'jobs=i',
 );
 
 if ($options{'track'} && $options{'lsf'}) {
@@ -22,6 +23,13 @@ if ($options{'track'} && $options{'lsf'}) {
 
 if ($options{'track'} || $options{'lsf'}) {
     setup_log_directory();
+    unless ($options{jobs}) {
+        $options{jobs} = 10;
+    }
+}
+
+if ($options{jobs}) {
+    unshift @ARGV, '--jobs', $options{jobs};
 }
 
 if ($options{'lsf'}) {
