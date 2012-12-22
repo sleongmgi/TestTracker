@@ -1,6 +1,0 @@
-- Tab completion.
-- Add ability to exclude some tests.
-- Sort tests by their duration.
-- We should be able to prune database of old items.
-- Will prove interupt bsub's if we ^C it?
-- Package. @done
