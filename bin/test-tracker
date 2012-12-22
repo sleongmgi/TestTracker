@@ -8,7 +8,10 @@ Usage: test-tracker <subcommand>
 
 Available subcommands are:
    list
+<<<<<<< HEAD
    list-git
+=======
+>>>>>>> upstream/0.004
    prove
 
 Try 'test-tracker <subcommand> --help' for details."
@@ -21,7 +24,7 @@ main() {
     shift
 
     case $SUBCOMMAND in
-        list|list-git|prove)
+        list|prove)
             ;;
         -h|--help)
             usage

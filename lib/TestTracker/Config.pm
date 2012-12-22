@@ -1,6 +1,7 @@
 package TestTracker::Config;
 
 use YAML;
+use File::Spec;
 
 require Exporter;
 our @ISA = qw(Exporter);
