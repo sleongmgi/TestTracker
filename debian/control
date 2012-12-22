@@ -1,0 +1,16 @@
+Source: libtesttracker-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 7)
+Build-Depends-Indep: perl (>= 5.10.1), libyaml-perl, libdata-uuid-perl,
+  libipc-system-simple-perl, liblist-moreutils-perl, libdbi-perl
+Maintainer: Nathaniel Nutter <nnutter@genome.wustl.edu>
+Standards-Version: 3.8.3
+Homepage: http://search.cpan.org/dist/TestTracker/
+
+Package: libtesttracker-perl
+Architecture: all
+Depends: ${perl:Depends}, ${misc:Depends}, perl (>= 5.10.1), libyaml-perl,
+  libdata-uuid-perl, libipc-system-simple-perl, liblist-moreutils-perl,
+  libdbi-perl
+Description: Track Perl module and test relationship so you can guess what are the best tests to run.
