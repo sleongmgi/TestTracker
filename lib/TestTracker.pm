@@ -186,6 +186,7 @@ sub default_git_arg {
     my $branch_name = qx_autodie('git rev-parse --abbrev-ref HEAD');
     chomp $branch_name;
 
+    # TODO what if the config doesn't exist?
     my $remote = qx(git config branch.$branch_name.remote);
     chomp $remote;
 
