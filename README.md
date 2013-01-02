@@ -6,7 +6,7 @@ Track Perl module and test relationships so you can guess what are the best test
 Building the Ubuntu Lucid Package
 =================================
 
-These notes are a work in progress and specific to my environment.
+These notes are a work in progress and specific to my environment. PSEUDO CODE:
 
     dzil release
     V=0.004 # e.g.
@@ -19,10 +19,10 @@ These notes are a work in progress and specific to my environment.
     git-import-orig ../TestTracker-$V.tar.gz
 
     # update the changelog
-    git-dch
+    git-dch -N $V-1
     git add debian/changelog
     git commit -m 'updated changelog'
-    git tag -a -m '' $V-1 # e.g.
+    git tag -a -m '' ubuntu-lucid/$V-1
 
     # build package
     ssh vmpool39
