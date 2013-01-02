@@ -42,11 +42,12 @@ if ($options{'track'}) {
 
 if ($options{'git'}) {
     my @tests = TestTracker::tests_for_git_changes($options{'git'});
+    my $msg_suffix = sprintf("to run based on Git changes (%s).\n", $options{'git'});
     unless (@tests) {
-        print STDERR "No tests to run based on Git changes.\n";
+        printf STDERR "No tests %s", $msg_suffix;
         exit 1;
     }
-    printf STDERR "Found %d tests to run based on Git changes.\n", scalar(@tests);
+    printf STDERR "Found %d tests %s", scalar(@tests), $msg_suffix;
     push @ARGV, @tests;
 }
 
