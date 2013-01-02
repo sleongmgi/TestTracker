@@ -18,11 +18,11 @@ my %WriteMakefileArgs = (
   "DISTNAME" => "TestTracker",
   "EXE_FILES" => [
     "bin/test-tracker",
-    "bin/test-tracker-list",
-    "bin/test-tracker-prove",
     "bin/test-tracker-exec-lsf",
     "bin/test-tracker-exec-tracker",
-    "bin/test-tracker-exec-tracker-helper"
+    "bin/test-tracker-exec-tracker-helper",
+    "bin/test-tracker-list",
+    "bin/test-tracker-prove"
   ],
   "LICENSE" => "perl",
   "NAME" => "TestTracker",
@@ -43,7 +43,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.005",
+  "VERSION" => "0.006",
   "test" => {
     "TESTS" => ""
   }
