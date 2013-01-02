@@ -13,6 +13,7 @@ our @EXPORT_OK = qw(
     $db_name
 
     $filter_inc_regex
+    $test_regex
 
     $lsf_log_dir
 );
@@ -27,6 +28,7 @@ our $db_schema   = $config->{db_schema};
 our $db_name     = $config->{db_name};
 
 our $filter_inc_regex = $config->{filter_inc_regex};
+our $test_regex = $config->{test_regex};
 
 our $lsf_log_dir = $config->{lsf_log_dir};
 
