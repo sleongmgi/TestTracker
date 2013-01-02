@@ -12,6 +12,7 @@ These notes are a work in progress and specific to my environment.
     V=0.004 # e.g.
     mv TestTracker-$V.tar.gz ../
     rm -rf TestTracker-$V
+    git tag -a -m '' v$V
 
     # import the dist using git-buildpackage
     git checkout ubuntu-lucid
