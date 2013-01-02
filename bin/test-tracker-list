@@ -31,7 +31,7 @@ if (defined $options{'git'}) {
 }
 
 if (@files) {
-    my @abs_files = File::Spec->rel2abs(@files);
+    my @abs_files = map { File::Spec->rel2abs($_) } @files;
     my @git_files = TestTracker::git_files(@abs_files);
     push @tests, TestTracker::tests_for_git_files(@git_files);
 }
