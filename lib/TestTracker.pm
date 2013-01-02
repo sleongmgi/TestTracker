@@ -9,7 +9,8 @@ use DBI;
 use File::Spec;
 use Getopt::Long;
 use Pod::Usage;
-use TestTracker::Config qw($db_user $db_password $db_host $db_schema $db_name);
+use TestTracker::Config qw($db_user $db_password $db_host $db_schema $db_name $test_regex);
+use List::MoreUtils qw(uniq);
 
 use Carp qw(croak);
 
@@ -109,13 +110,17 @@ sub absolute_files {
 
 sub tests_for_git_changes {
     my @git_log_args = @_;
+
     my @changed_files = changed_files_from_git(@git_log_args);
+
     my @tests;
     if (@changed_files) {
         push @tests, tests_for_git_files(@changed_files);
+        push @tests, grep { /$test_regex/ } @changed_files;
     }
+
     # Convert "git path" to "absolute path" and then to "relative path"
-    my @rel_tests = map { File::Spec->abs2rel($_) } absolute_files(@tests);
+    my @rel_tests = uniq map { File::Spec->abs2rel($_) } absolute_files(@tests);
     return grep { -f $_ } @rel_tests;
 }
 
