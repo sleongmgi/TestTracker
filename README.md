@@ -8,29 +8,31 @@ Building the Ubuntu Lucid Package
 
 These notes are a work in progress and specific to my environment. PSEUDO CODE:
 
+    SRC_VERSION="0.006"
+    PKG_VERSION="$SRC_VERSION-1"
+    DISTRO="ubuntu-lucid"
+
     dzil release
-    V=0.004 # e.g.
-    mv TestTracker-$V.tar.gz ../
-    rm -rf TestTracker-$V
-    git tag -a -m '' v$V
+    rm -rf TestTracker-$SRC_VERSION # Removed "temp" directory...
+    git tag -a -m '' v$SRC_VERSION # If you don't upload the release we still need to tag...
 
     # import the dist using git-buildpackage
-    git checkout ubuntu-lucid
-    git-import-orig ../TestTracker-$V.tar.gz
+    git checkout $DISTRO
+    git-import-orig TestTracker-$SRC_VERSION.tar.gz
+    rm -f TestTracker-$SRC_VERSION.tar.gz
 
     # update the changelog
-    git-dch -N $V-1
-    git add debian/changelog
-    git commit -m 'updated changelog'
-    git tag -a -m '' ubuntu-lucid/$V-1
+    git-dch -N $PKG_VERSION
+    git commit -m "Updated changelog for $PKG_VERSION." debian/changelog
+    git tag -a -m "" $DISTRO/$PKG_VERSION
 
     # build package
     ssh vmpool39
     cd ~/git-buildpackage/TestTracker
-    git pull -ff-only
+    git pull --ff-only
     git-buildpackage -us -uc -S
     rm -rf ~/sbuild/build/*
     cd ~/git-buildpackage
-    sbuild --source --dist=lucid-amd64 --arch-all libtesttracker-perl_$V-1.dsc
+    sbuild --source --dist=lucid-amd64 --arch-all libtesttracker-perl_$PKG_VERSION.dsc
     rsync -av --delete /home/vmuser/sbuild/build/ nnutter@linus43:~/pkg/
-    tgi-dput ~/pkg/libtesttracker-perl_$V-1*.changes
+    tgi-dput ~/pkg/libtesttracker-perl_$PKG_VERSION*.changes
