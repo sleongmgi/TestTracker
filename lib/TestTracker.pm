@@ -49,7 +49,7 @@ sub changed_files_from_git {
     return @changed_files;
 }
 
-sub _times_for_tests {
+sub _durations_for_tests {
     my ($dbh, $db_schema, @tests) = @_;
 
     my $sql = sprintf(qq{
@@ -57,17 +57,20 @@ sub _times_for_tests {
         WHERE name IN (%s)
         }, join(', ', map { '?' } @tests));
 
-    return $dbh->selectall_hashref($sql, 'name', {}, @tests);
+    my @results = $dbh->selectall_arrayref($sql, {}, @tests);
+    @results = sort {$b->[1] <=> $a->[1]} @{$results[0]};
+    return @results
 }
 
-sub times_for_tests {
+# returns an array of two element arrays (test_name, duration), sorted by duration.
+sub durations_for_tests {
     unless (@_) {
         croak 'times_for_tests takes one or more test filenames (git_files)';
     }
     my $dbh = db_connection();
-    my $result = _times_for_tests($dbh, $db_schema, @_);
+    my @results = _durations_for_tests($dbh, $db_schema, @_);
     $dbh->disconnect();
-    return $result;
+    return @results;
 }
 
 

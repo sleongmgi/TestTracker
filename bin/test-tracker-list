@@ -39,34 +39,20 @@ if (@files) {
 }
 
 @tests = uniq @tests;
-my $test_durations = TestTracker::times_for_tests(@tests);
+my @test_durations = TestTracker::durations_for_tests(@tests);
 
 my $unknown_test = 0;
-my $format = "%8s  %s\n";
-printf $format, "Duration", "Test Name";
+my $format = "%5s  %s\n";
 my $total_duration = 0;
-for my $test (@tests) {
-    my ($duration, $str_duration);
-    if (exists($test_durations->{$test})) {
-        $duration = $test_durations->{$test}->{'duration'};
-        $str_duration = $duration;
-    } else {
-        $duration = 0;
-        $str_duration = "$duration*";
-        $unknown_test = 1;
-    }
+for my $test_duration (@test_durations) {
+    my ($test, $duration) = @{$test_duration};
     $total_duration += $duration;
 
-    printf $format, $str_duration, $test;
+    printf $format, $duration, $test;
 }
 
 printf "\nFound %s tests which would take a total of %s seconds (%s) to run.\n",
-        scalar(@tests), $total_duration, format_duration($total_duration);
-
-if ($unknown_test) {
-    print "    * indicates unknown duration (test is not yet in database)\n";
-}
-
+        scalar(@test_durations), $total_duration, format_duration($total_duration);
 
 sub format_duration {
     my $duration = shift;
