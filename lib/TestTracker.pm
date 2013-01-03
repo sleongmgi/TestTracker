@@ -74,6 +74,39 @@ sub durations_for_tests {
 }
 
 
+sub _modules_for_test {
+    my ($dbh, $db_schema, $test, @modules) = @_;
+
+    my $sql = sprintf(qq{
+        SELECT $db_schema.module.name FROM $db_schema.module JOIN
+        $db_schema.module_test ON $db_schema.module.id = $db_schema.module_test.module_id JOIN
+        $db_schema.test ON $db_schema.module_test.test_id = $db_schema.test.id
+        WHERE $db_schema.test.name = ? AND $db_schema.module.name IN (%s)
+    }, join(', ', map { '?' } @modules));
+
+    my @module_names = map { $_->[0] } @{$dbh->selectall_arrayref($sql, {}, $test, @modules)};
+    return @module_names;
+}
+
+# returns a hash of test_name => [modules]
+sub modules_for_tests {
+    my ($tests, $relevant_modules) = @_;
+    my @tests = @{$tests};
+    my @relevant_modules = @{$relevant_modules};
+
+    unless (@tests) {
+        croak 'times_for_tests takes one or more test filenames (git_files)';
+    }
+    my $dbh = db_connection();
+    my %results;
+    for my $test (@tests) {
+        my @modules = _modules_for_test($dbh, $db_schema, $test, @relevant_modules);
+        $results{$test} = \@modules;
+    }
+    $dbh->disconnect();
+    return %results;
+}
+
 sub _tests_for_modules {
     my ($dbh, $db_schema, @modules) = @_;
 
