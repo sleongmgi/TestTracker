@@ -49,6 +49,27 @@ sub changed_files_from_git {
     return @changed_files;
 }
 
+sub _times_for_tests {
+    my ($dbh, $db_schema, @tests) = @_;
+
+    my $sql = sprintf(qq{
+        SELECT name, duration FROM $db_schema.test
+        WHERE name IN (%s)
+        }, join(', ', map { '?' } @tests));
+
+    return $dbh->selectall_hashref($sql, 'name', {}, @tests);
+}
+
+sub times_for_tests {
+    unless (@_) {
+        croak 'times_for_tests takes one or more test filenames (git_files)';
+    }
+    my $dbh = db_connection();
+    my $result = _times_for_tests($dbh, $db_schema, @_);
+    $dbh->disconnect();
+    return $result;
+}
+
 
 sub _tests_for_modules {
     my ($dbh, $db_schema, @modules) = @_;

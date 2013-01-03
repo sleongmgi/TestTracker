@@ -6,6 +6,7 @@ use warnings;
 use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use TestTracker;
+use TestTracker::Config qw($test_regex);
 
 my %options = TestTracker::parse_args();
 
@@ -34,9 +35,50 @@ if (@files) {
     my @abs_files = map { File::Spec->rel2abs($_) } @files;
     my @git_files = TestTracker::git_files(@abs_files);
     push @tests, TestTracker::tests_for_git_files(@git_files);
+    push @tests, grep { /$test_regex/ } @git_files;
 }
 
-print join("\n", uniq @tests), "\n";
+@tests = uniq @tests;
+my $test_durations = TestTracker::times_for_tests(@tests);
+
+my $unknown_test = 0;
+my $format = "%8s  %s\n";
+printf $format, "Duration", "Test Name";
+my $total_duration = 0;
+for my $test (@tests) {
+    my ($duration, $str_duration);
+    if (exists($test_durations->{$test})) {
+        $duration = $test_durations->{$test}->{'duration'};
+        $str_duration = $duration;
+    } else {
+        $duration = 0;
+        $str_duration = "$duration*";
+        $unknown_test = 1;
+    }
+    $total_duration += $duration;
+
+    printf $format, $str_duration, $test;
+}
+
+printf "\nFound %s tests which would take a total of %s seconds (%s) to run.\n",
+        scalar(@tests), $total_duration, format_duration($total_duration);
+
+if ($unknown_test) {
+    print "    * indicates unknown duration (test is not yet in database)\n";
+}
+
+
+sub format_duration {
+    my $duration = shift;
+
+    my $hours = int($duration/3600);
+    my $remainder = $duration - $hours*3600;
+
+    my $minutes = int($remainder/60);
+    my $seconds = $remainder - $minutes*60;
+
+    return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+}
 
 __END__
 
