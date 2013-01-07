@@ -26,14 +26,21 @@ if (!defined($options{'git'}) && !@files) {
     pod2usage(2);
 }
 
-if (defined $options{'git'}) {
-    push @files, TestTracker::changed_files_from_git($options{'git'});
-    @files = uniq @files;
+my @git_files;
+if (@files) {
+    push @git_files, TestTracker::rel2git(@files);
 }
 
-croak "No files provided." unless @files;
-my @abs_files = map { File::Spec->rel2abs($_) } @files;
-my @git_files = TestTracker::abs2git(@abs_files);
+if (defined $options{'git'}) {
+    push @git_files, TestTracker::changed_files_from_git($options{'git'});
+    @git_files = uniq @git_files;
+}
+
+unless (@git_files) {
+    printf STDERR ("ERROR: No files provided.\n");
+    exit 1;
+}
+
 my @tests = TestTracker::tests_for_git_files(@git_files);
 push @tests, grep { /$config{test_regex}/ } @git_files;
 
