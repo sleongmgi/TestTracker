@@ -9,15 +9,17 @@ use DBI;
 use File::Spec;
 use Getopt::Long;
 use Pod::Usage;
-use TestTracker::Config qw($db_user $db_password $db_host $db_schema $db_name $test_regex);
+use TestTracker::Config;
 use List::MoreUtils qw(uniq);
 
 use Carp qw(croak);
 
+
 sub db_connection {
-    my $dsn = sprintf('dbi:Pg:dbname=%s;host=%s', $db_name, $db_host);
+    my %config = TestTracker::Config::load();
+    my $dsn = sprintf('dbi:Pg:dbname=%s;host=%s', $config{db_name}, $config{db_host});
     my $dbh = DBI->connect(
-        $dsn, $db_user, $db_password, {RaiseError => 1, AutoCommit => 0}
+        $dsn, $config{db_user}, $config{db_password}, {RaiseError => 1, AutoCommit => 0}
     ) or die $DBI::errstr;
     return $dbh;
 }
@@ -67,8 +69,9 @@ sub durations_for_tests {
     unless (@_) {
         croak 'times_for_tests takes one or more test filenames (git_files)';
     }
+    my %config = TestTracker::Config::load();
     my $dbh = db_connection();
-    my @results = _durations_for_tests($dbh, $db_schema, @_);
+    my @results = _durations_for_tests($dbh, $config{db_schema}, @_);
     $dbh->disconnect();
     return @results;
 }
@@ -97,10 +100,11 @@ sub modules_for_tests {
     unless (@tests) {
         croak 'times_for_tests takes one or more test filenames (git_files)';
     }
+    my %config = TestTracker::Config::load();
     my $dbh = db_connection();
     my %results;
     for my $test (@tests) {
-        my @modules = _modules_for_test($dbh, $db_schema, $test, @relevant_modules);
+        my @modules = _modules_for_test($dbh, $config{db_schema}, $test, @relevant_modules);
         $results{$test} = \@modules;
     }
     $dbh->disconnect();
@@ -125,8 +129,9 @@ sub tests_for_git_files {
     unless (@_) {
         croak 'tests_for_git_files takes one or more module paths';
     }
+    my %config = TestTracker::Config::load();
     my $dbh = db_connection();
-    return _tests_for_modules($dbh, $db_schema, @_);
+    return _tests_for_modules($dbh, $config{db_schema}, @_);
 }
 
 sub _validate_paths {
@@ -205,12 +210,14 @@ sub git2abs {
 sub tests_for_git_changes {
     my @git_log_args = @_;
 
+    my %config = TestTracker::Config::load();
+
     my @changed_files = changed_files_from_git(@git_log_args);
 
     my @tests;
     if (@changed_files) {
         push @tests, tests_for_git_files(@changed_files);
-        push @tests, grep { /$test_regex/ } @changed_files;
+        push @tests, grep { /$config{test_regex}/ } @changed_files;
     }
 
     # Convert "git path" to "absolute path" and then to "relative path"

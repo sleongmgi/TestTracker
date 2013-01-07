@@ -3,11 +3,13 @@
 use strict;
 use warnings;
 
+use Carp 'croak';
 use List::MoreUtils qw(uniq);
 use Pod::Usage;
+use TestTracker::Config;
 use TestTracker;
-use Carp 'croak';
-use TestTracker::Config qw($test_regex);
+
+my %config = TestTracker::Config::load();
 
 my %options = TestTracker::parse_args(
     'explain' => 'explain|e',
@@ -33,7 +35,7 @@ croak "No files provided." unless @files;
 my @abs_files = map { File::Spec->rel2abs($_) } @files;
 my @git_files = TestTracker::abs2git(@abs_files);
 my @tests = TestTracker::tests_for_git_files(@git_files);
-push @tests, grep { /$test_regex/ } @git_files;
+push @tests, grep { /$config{test_regex}/ } @git_files;
 
 my %modules_for_tests;
 if ($options{'explain'}) {

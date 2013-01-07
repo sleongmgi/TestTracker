@@ -3,8 +3,10 @@
 use strict;
 use warnings;
 
-use TestTracker::Config qw($db_schema $filter_inc_regex);
+use TestTracker::Config;
 use TestTracker;
+
+my %config = TestTracker::Config::load();
 
 my $test_name = shift @ARGV;
 my $abs_test_name = File::Spec->rel2abs($test_name);
@@ -28,15 +30,15 @@ my $git_base_dir = TestTracker::git_base_dir();
 my @inc_paths = values %INC;
 my @git_inc_paths = grep { /^${git_base_dir}/ } @inc_paths;
 my @git_files = TestTracker::abs2git(@git_inc_paths);
-my @module_names = grep { /$filter_inc_regex/ } @git_files;
+my @module_names = grep { /$config{filter_inc_regex}/ } @git_files;
 
 my $dbh = TestTracker::db_connection();
-upsert_test($dbh, $db_schema, $git_test_name, $elapsed_time);
-upsert_modules($dbh, $db_schema, @module_names);
+upsert_test($dbh, $config{db_schema}, $git_test_name, $elapsed_time);
+upsert_modules($dbh, $config{db_schema}, @module_names);
 $dbh->commit();
 
-my $test_id = get_test_id($dbh, $db_schema, $git_test_name);
-replace_bridge_entries($dbh, $db_schema, $test_id, @module_names);
+my $test_id = get_test_id($dbh, $config{db_schema}, $git_test_name);
+replace_bridge_entries($dbh, $config{db_schema}, $test_id, @module_names);
 $dbh->commit();
 $dbh->disconnect();
 

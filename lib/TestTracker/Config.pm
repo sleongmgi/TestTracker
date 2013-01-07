@@ -3,46 +3,37 @@ package TestTracker::Config;
 use YAML;
 use File::Spec;
 
-require Exporter;
-our @ISA = qw(Exporter);
-our @EXPORT_OK = qw(
-    $db_user
-    $db_password
-    $db_host
-    $db_schema
-    $db_name
+sub _load {
+    my $git_base_dir = git_base_dir();
+    $config_file = File::Spec->join($git_base_dir, '.test-tracker.conf');
 
-    $filter_inc_regex
-    $test_regex
-
-    $lsf_log_dir
-);
-
-my $git_base_dir = git_base_dir();
-my $config_file = File::Spec->join($git_base_dir, '.test-tracker.conf');
-my ($config) = YAML::LoadFile($config_file);
-
-my $req_config = sub {
-    my $key = shift;
-    my $value = $config->{$key};
-    unless (defined $value) {
-        my $rel_config_file = File::Spec->abs2rel($config_file);
-        print STDERR "$key not found in config: $rel_config_file\n";
-        exit 1;
+    unless (-f $config_file) {
+        die "config_file not found: $config_file";
     }
-    return $value;
-};
+    unless (-r $config_file) {
+        die "config_file not readable $config_file";
+    }
+    my ($config) = YAML::LoadFile($config_file);
 
-our $db_user     = $req_config->('db_user');
-our $db_password = $req_config->('db_password');
-our $db_host     = $req_config->('db_host');
-our $db_schema   = $req_config->('db_schema');
-our $db_name     = $req_config->('db_name');
+    my @required_keys = qw(db_user db_password db_host db_schema db_name filter_inc_regex test_regex lsf_log_dir);
+    for my $required_key (@required_keys) {
+        unless (exists $config->{$required_key}) {
+            my $rel_config_file = File::Spec->abs2rel($config_file);
+            print STDERR "$required_key not found in config: $rel_config_file\n";
+            exit 1;
+        }
+    }
 
-our $filter_inc_regex = $req_config->('filter_inc_regex');
-our $test_regex       = $req_config->('test_regex');
+    return %$config;
+}
 
-our $lsf_log_dir = $req_config->('lsf_log_dir');
+my %config;
+sub load {
+    unless (keys %config) {
+        %config = _load();
+    }
+    return %config;
+}
 
 # TODO Both git_base_dir and qx_autodie are copy-pasted from TestTracker.
 # Need to refactor.
@@ -74,3 +65,5 @@ sub qx_autodie {
         return join('', @rv);
     }
 }
+
+1;
