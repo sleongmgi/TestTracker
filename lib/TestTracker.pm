@@ -146,6 +146,25 @@ sub _validate_paths {
     return;
 }
 
+sub _rel2git {
+    my $rel_path = shift;
+    my $abs_path = File::Spec->rel2abs($rel_path);
+    my ($git_path) = abs2git($abs_path);
+    return $git_path;
+}
+
+
+sub rel2git {
+    my @rel_paths = @_;
+
+    my $error = _validate_paths(@rel_paths);
+    if ($error) {
+        croak "rel2git: $error";
+    }
+
+    return map { _rel2git($_) } @rel_paths;
+}
+
 sub _abs2git {
     my $abs_path = shift;
     my $git_base_dir = git_base_dir();
