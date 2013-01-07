@@ -1,4 +1,0 @@
-use Git::Raw;
-my $repo = Git::Raw::Repository->discover('.')
-$repo->workdir()
-
