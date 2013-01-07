@@ -19,18 +19,30 @@ our @EXPORT_OK = qw(
 );
 
 my $git_base_dir = git_base_dir();
-my ($config) = YAML::LoadFile(File::Spec->join($git_base_dir, '.test-tracker.conf'));
+my $config_file = File::Spec->join($git_base_dir, '.test-tracker.conf');
+my ($config) = YAML::LoadFile($config_file);
 
-our $db_user     = $config->{db_user};
-our $db_password = $config->{db_password};
-our $db_host     = $config->{db_host};
-our $db_schema   = $config->{db_schema};
-our $db_name     = $config->{db_name};
+my $req_config = sub {
+    my $key = shift;
+    my $value = $config->{$key};
+    unless (defined $value) {
+        my $rel_config_file = File::Spec->abs2rel($config_file);
+        print STDERR "$key not found in config: $rel_config_file\n";
+        exit 1;
+    }
+    return $value;
+};
 
-our $filter_inc_regex = $config->{filter_inc_regex};
-our $test_regex = $config->{test_regex};
+our $db_user     = $req_config->('db_user');
+our $db_password = $req_config->('db_password');
+our $db_host     = $req_config->('db_host');
+our $db_schema   = $req_config->('db_schema');
+our $db_name     = $req_config->('db_name');
 
-our $lsf_log_dir = $config->{lsf_log_dir};
+our $filter_inc_regex = $req_config->('filter_inc_regex');
+our $test_regex       = $req_config->('test_regex');
+
+our $lsf_log_dir = $req_config->('lsf_log_dir');
 
 # TODO Both git_base_dir and qx_autodie are copy-pasted from TestTracker.
 # Need to refactor.

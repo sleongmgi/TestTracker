@@ -6,8 +6,12 @@ use warnings;
 use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use TestTracker;
+use Carp 'croak';
+use TestTracker::Config qw($test_regex);
 
-my %options = TestTracker::parse_args();
+my %options = TestTracker::parse_args(
+    'explain' => 'explain|e',
+);
 
 my @files = @ARGV;
 my @nonfiles = grep { ! -f $_ } @files;
@@ -20,23 +24,50 @@ if (!defined($options{'git'}) && !@files) {
     pod2usage(2);
 }
 
-my @tests;
 if (defined $options{'git'}) {
-    my @git_tests = TestTracker::tests_for_git_changes($options{'git'});
-    unless (@git_tests) {
-        print STDERR "No tests to run based on Git changes.\n";
-        exit 1;
+    push @files, TestTracker::changed_files_from_git($options{'git'});
+    @files = uniq @files;
+}
+
+croak "No files provided." unless @files;
+my @abs_files = map { File::Spec->rel2abs($_) } @files;
+my @git_files = TestTracker::git_files(@abs_files);
+my @tests = TestTracker::tests_for_git_files(@git_files);
+push @tests, grep { /$test_regex/ } @git_files;
+
+my %modules_for_tests;
+if ($options{'explain'}) {
+    %modules_for_tests = TestTracker::modules_for_tests(\@tests, \@git_files);
+}
+
+my @test_durations = TestTracker::durations_for_tests(@tests);
+
+my $format = "%5s  %s\n";
+my $total_duration = 0;
+for my $test_duration (@test_durations) {
+    my ($test, $duration) = @{$test_duration};
+    $total_duration += $duration;
+
+    printf $format, $duration, $test;
+    if ($options{'explain'}) {
+        printf " "x12 . "Because of %s\n", join("\n" . " "x23, @{$modules_for_tests{$test}});
     }
-    push @tests, @git_tests;
 }
 
-if (@files) {
-    my @abs_files = map { File::Spec->rel2abs($_) } @files;
-    my @git_files = TestTracker::git_files(@abs_files);
-    push @tests, TestTracker::tests_for_git_files(@git_files);
-}
+printf "\nFound %s tests which would take a total of %s seconds (%s) to run.\n",
+        scalar(@test_durations), $total_duration, format_duration($total_duration);
 
-print join("\n", uniq @tests), "\n";
+sub format_duration {
+    my $duration = shift;
+
+    my $hours = int($duration/3600);
+    my $remainder = $duration - $hours*3600;
+
+    my $minutes = int($remainder/60);
+    my $seconds = $remainder - $minutes*60;
+
+    return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+}
 
 __END__
 

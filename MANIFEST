@@ -4,7 +4,6 @@ META.yml
 Makefile.PL
 README
 README.md
-TODO
 bin/test-tracker
 bin/test-tracker-exec-lsf
 bin/test-tracker-exec-tracker
