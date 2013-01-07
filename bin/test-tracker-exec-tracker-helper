@@ -8,7 +8,7 @@ use TestTracker;
 
 my $test_name = shift @ARGV;
 my $abs_test_name = File::Spec->rel2abs($test_name);
-my $git_test_name = TestTracker::git_path($abs_test_name);
+my ($git_test_name) = TestTracker::abs2git($abs_test_name);
 
 # TODO fork to catch when do exits
 my $elapsed_time = -1;
@@ -27,7 +27,7 @@ my $elapsed_time = -1;
 my $git_base_dir = TestTracker::git_base_dir();
 my @inc_paths = values %INC;
 my @git_inc_paths = grep { /^${git_base_dir}/ } @inc_paths;
-my @git_files = TestTracker::git_files(@git_inc_paths);
+my @git_files = TestTracker::abs2git(@git_inc_paths);
 my @module_names = grep { /$filter_inc_regex/ } @git_files;
 
 my $dbh = TestTracker::db_connection();

@@ -129,30 +129,43 @@ sub tests_for_git_files {
     return _tests_for_modules($dbh, $db_schema, @_);
 }
 
-sub git_path {
-    my $abs_path = shift;
+sub _validate_paths {
+    my @paths = @_;
 
-    unless ($abs_path) {
-        croak 'git_path takes one argument';
+    unless (@paths) {
+        return 'one or more arguments required';
     }
 
+    my @ne_paths = grep { ! -e $_ } @paths;
+    if (@ne_paths) {
+        my $msg = sprintf('one or more relative paths do not exist: %s',
+            join(', ', @ne_paths));
+        return $msg;
+    }
+
+    return;
+}
+
+sub _abs2git {
+    my $abs_path = shift;
     my $git_base_dir = git_base_dir();
     my ($git_path) = $abs_path =~ /^${git_base_dir}(.*)$/;
-
     return $git_path;
 }
 
-sub git_files {
-    my @files = @_;
-    return map { git_path($_) } @files;
+sub abs2git {
+    my @abs_paths = @_;
+
+    my $error = _validate_paths(@abs_paths);
+    if ($error) {
+        croak "rel2git: $error";
+    }
+
+    return map { _abs2git($_) } @abs_paths;
 }
 
-sub absolute_path {
+sub _git2abs {
     my $git_path = shift;
-
-    unless ($git_path) {
-        croak 'absolute_path takes one argument';
-    }
 
     my $git_base_dir = git_base_dir();
     my $abs_path = File::Spec->join($git_base_dir, $git_path);
@@ -160,9 +173,14 @@ sub absolute_path {
     return $abs_path;
 }
 
-sub absolute_files {
-    my @files = @_;
-    return map { absolute_path($_) } @files;
+sub git2abs {
+    my @git_paths = @_;
+
+    unless (@git_paths) {
+        croak 'git2abs: one or more arguments required';
+    }
+
+    return map { _git2abs($_) } @git_paths;
 }
 
 sub tests_for_git_changes {
@@ -177,7 +195,7 @@ sub tests_for_git_changes {
     }
 
     # Convert "git path" to "absolute path" and then to "relative path"
-    my @rel_tests = uniq map { File::Spec->abs2rel($_) } absolute_files(@tests);
+    my @rel_tests = uniq map { File::Spec->abs2rel($_) } git2abs(@tests);
     return grep { -f $_ } @rel_tests;
 }
 
