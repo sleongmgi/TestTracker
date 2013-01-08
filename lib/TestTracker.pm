@@ -34,6 +34,9 @@ sub git_base_dir {
 
 sub changed_files_from_git {
     my @git_log_args = @_;
+
+    my %config = TestTracker::Config::load();
+
     my $git_log_cmd = sprintf(q(git log --pretty="format:" --name-only "%s"), join('" "', @git_log_args));
     my @commited_changed_files = qx_autodie($git_log_cmd);
     chomp @commited_changed_files;
@@ -45,6 +48,7 @@ sub changed_files_from_git {
     my $git_base_dir = git_base_dir();
 
     my @changed_files =
+        grep { /$config{test_regex}|$config{module_regex}/ }
         grep { $_ !~ /^$/ }
         @commited_changed_files, @working_changed_files;
 
