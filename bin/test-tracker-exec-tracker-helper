@@ -9,8 +9,7 @@ use TestTracker;
 my %config = TestTracker::Config::load();
 
 my $test_name = shift @ARGV;
-my $abs_test_name = File::Spec->rel2abs($test_name);
-my ($git_test_name) = TestTracker::abs2git($abs_test_name);
+my ($git_test_name) = TestTracker::rel2git($test_name);
 
 # TODO fork to catch when do exits
 my $elapsed_time = -1;

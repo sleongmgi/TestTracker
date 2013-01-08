@@ -19,8 +19,7 @@ sub main {
         die "TESTTRACKER_LOG_DIR is not a directory: $log_dir";
     }
 
-    my $abs_test_name = File::Spec->rel2abs($test_name);
-    my ($git_test_name) = TestTracker::abs2git($abs_test_name);
+    my ($git_test_name) = TestTracker::rel2git($test_name);
     my $base_log_filename = File::Spec->join($log_dir, $git_test_name);
 
     my (undef, $base_log_dir, undef) = File::Spec->splitpath($base_log_filename);
