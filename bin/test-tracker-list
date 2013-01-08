@@ -33,9 +33,9 @@ if (@files) {
 
 if (defined $options{'git'}) {
     push @git_files, TestTracker::changed_files_from_git($options{'git'});
-    @git_files = uniq @git_files;
 }
 
+@git_files = uniq @git_files;
 unless (@git_files) {
     printf STDERR ("ERROR: No files provided.\n");
     exit 1;
