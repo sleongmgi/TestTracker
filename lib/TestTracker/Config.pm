@@ -15,7 +15,7 @@ sub _load {
     }
     my ($config) = YAML::LoadFile($config_file);
 
-    my @required_keys = qw(db_user db_password db_host db_schema db_name filter_inc_regex test_regex lsf_log_dir);
+    my @required_keys = qw(db_user db_password db_host db_schema db_name module_regex test_regex lsf_log_dir);
     for my $required_key (@required_keys) {
         unless (exists $config->{$required_key}) {
             my $rel_config_file = File::Spec->abs2rel($config_file);
