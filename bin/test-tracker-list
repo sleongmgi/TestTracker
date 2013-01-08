@@ -44,6 +44,11 @@ unless (@git_files) {
 my @tests = TestTracker::tests_for_git_files(@git_files);
 push @tests, grep { /$config{test_regex}/ } @git_files;
 
+unless (@tests) {
+    print STDERR "ERROR: No test coverage for:\n\t", join("\n\t", @git_files), "\n";
+    exit 1;
+}
+
 my %modules_for_tests;
 if ($options{'explain'}) {
     %modules_for_tests = TestTracker::modules_for_tests(\@tests, \@git_files);
