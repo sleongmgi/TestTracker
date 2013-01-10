@@ -313,4 +313,16 @@ sub default_git_arg {
     return "$remote_branch..";
 }
 
+sub format_duration {
+    my $duration = shift;
+
+    my $hours = int($duration/3600);
+    my $remainder = $duration - $hours*3600;
+
+    my $minutes = int($remainder/60);
+    my $seconds = $remainder - $minutes*60;
+
+    return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+}
+
 1;

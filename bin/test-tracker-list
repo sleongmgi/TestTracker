@@ -69,19 +69,7 @@ for my $test_duration (@test_durations) {
 }
 
 printf "\nFound %s tests which would take a total of %s seconds (%s) to run.\n",
-        scalar(@test_durations), $total_duration, format_duration($total_duration);
-
-sub format_duration {
-    my $duration = shift;
-
-    my $hours = int($duration/3600);
-    my $remainder = $duration - $hours*3600;
-
-    my $minutes = int($remainder/60);
-    my $seconds = $remainder - $minutes*60;
-
-    return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
-}
+        scalar(@test_durations), $total_duration, TestTracker::format_duration($total_duration);
 
 __END__
 
