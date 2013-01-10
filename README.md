@@ -14,17 +14,20 @@ These notes are a work in progress and specific to my environment. PSEUDO CODE:
 
     dzil release
     rm -rf TestTracker-$SRC_VERSION # Removed "temp" directory...
+    mv TestTracker-$SRC_VERSION.tar.gz /tmp/
     git tag -a -m '' v$SRC_VERSION # If you don't upload the release we still need to tag...
 
     # import the dist using git-buildpackage
     git checkout $DISTRO
-    git-import-orig TestTracker-$SRC_VERSION.tar.gz
-    rm -f TestTracker-$SRC_VERSION.tar.gz
+    git-import-orig /tmp/TestTracker-$SRC_VERSION.tar.gz
+    rm -f /tmp/TestTracker-$SRC_VERSION.tar.gz
 
     # update the changelog
     git-dch -N $PKG_VERSION
     git commit -m "Updated changelog for $PKG_VERSION." debian/changelog
     git tag -a -m "" $DISTRO/$PKG_VERSION
+    git push --all
+    git push --tags
 
     # build package
     ssh vmpool39
