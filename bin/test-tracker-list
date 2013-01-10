@@ -3,11 +3,13 @@
 use strict;
 use warnings;
 
+use Carp 'croak';
 use List::MoreUtils qw(uniq);
 use Pod::Usage;
+use TestTracker::Config;
 use TestTracker;
-use Carp 'croak';
-use TestTracker::Config qw($test_regex);
+
+my %config = TestTracker::Config::load();
 
 my %options = TestTracker::parse_args(
     'explain' => 'explain|e',
@@ -24,16 +26,28 @@ if (!defined($options{'git'}) && !@files) {
     pod2usage(2);
 }
 
-if (defined $options{'git'}) {
-    push @files, TestTracker::changed_files_from_git($options{'git'});
-    @files = uniq @files;
+my @git_files;
+if (@files) {
+    push @git_files, TestTracker::rel2git(@files);
 }
 
-croak "No files provided." unless @files;
-my @abs_files = map { File::Spec->rel2abs($_) } @files;
-my @git_files = TestTracker::git_files(@abs_files);
+if (defined $options{'git'}) {
+    push @git_files, TestTracker::changed_files_from_git($options{'git'});
+}
+
+@git_files = uniq @git_files;
+unless (@git_files) {
+    printf STDERR ("ERROR: No files provided.\n");
+    exit 1;
+}
+
 my @tests = TestTracker::tests_for_git_files(@git_files);
-push @tests, grep { /$test_regex/ } @git_files;
+push @tests, grep { /$config{test_regex}/ } @git_files;
+
+unless (@tests) {
+    print STDERR "ERROR: No test coverage for:\n\t", join("\n\t", @git_files), "\n";
+    exit 1;
+}
 
 my %modules_for_tests;
 if ($options{'explain'}) {
@@ -55,19 +69,7 @@ for my $test_duration (@test_durations) {
 }
 
 printf "\nFound %s tests which would take a total of %s seconds (%s) to run.\n",
-        scalar(@test_durations), $total_duration, format_duration($total_duration);
-
-sub format_duration {
-    my $duration = shift;
-
-    my $hours = int($duration/3600);
-    my $remainder = $duration - $hours*3600;
-
-    my $minutes = int($remainder/60);
-    my $seconds = $remainder - $minutes*60;
-
-    return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
-}
+        scalar(@test_durations), $total_duration, TestTracker::format_duration($total_duration);
 
 __END__
 
