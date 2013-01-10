@@ -6,9 +6,13 @@ use warnings;
 use Data::UUID;
 use File::Path qw(make_path);
 use File::Spec;
-use TestTracker::Config qw($lsf_log_dir);
+use TestTracker::Config;
 use TestTracker;
 use Pod::Usage;
+use List::Util qw(max sum);
+use List::MoreUtils qw(uniq);
+
+my %config = TestTracker::Config::load();
 
 my %options = TestTracker::parse_args(
     pass_through => 1,
@@ -42,19 +46,28 @@ if ($options{'track'}) {
 
 if ($options{'git'}) {
     my @tests = TestTracker::tests_for_git_changes($options{'git'});
-    my $msg_suffix = sprintf("to run based on Git changes (%s).\n", $options{'git'});
+    my $msg_suffix = sprintf("to run based on Git changes (%s)", $options{'git'});
     unless (@tests) {
-        printf STDERR "No tests %s", $msg_suffix;
+        printf STDERR "No tests %s.\n", $msg_suffix;
         exit 1;
     }
-    printf STDERR "Found %d tests %s", scalar(@tests), $msg_suffix;
+    my @test_durations = map { $_->[1] } TestTracker::durations_for_tests(TestTracker::rel2git(@tests));
+    my $total_duration = sum(@test_durations);
+    my $estimated_duration = $total_duration;
+    if ($options{jobs}) {
+        my $t = $estimated_duration / $options{jobs};
+        $estimated_duration = max($t, max(@test_durations));
+    }
+    printf STDERR "Found %d tests %s which would take an estimated %d seconds (%s) to run.\n",
+        scalar(@tests), $msg_suffix, $estimated_duration, TestTracker::format_duration($estimated_duration);
     push @ARGV, @tests;
 }
+
 
 exec 'prove', @ARGV;
 
 sub setup_log_directory {
-    my $workspace = $lsf_log_dir;
+    my $workspace = $config{lsf_log_dir};
     my $username = getpwuid($>);
     my $uuid_generator = new Data::UUID;
     my $uuid = $uuid_generator->create_str();

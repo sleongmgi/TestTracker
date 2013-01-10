@@ -19,8 +19,7 @@ sub main {
         die "TESTTRACKER_LOG_DIR is not a directory: $log_dir";
     }
 
-    my $abs_test_name = File::Spec->rel2abs($test_name);
-    my $git_test_name = TestTracker::git_path($abs_test_name);
+    my ($git_test_name) = TestTracker::rel2git($test_name);
     my $base_log_filename = File::Spec->join($log_dir, $git_test_name);
 
     my (undef, $base_log_dir, undef) = File::Spec->splitpath($base_log_filename);
@@ -37,11 +36,6 @@ sub main {
 
     my (undef, $out_dir, undef) = File::Spec->splitpath($out_filename);
     system("touch '$out_dir'") && die "failed to execute touch";
-
-#    my $err_fh = IO::File->new($err_filename, 'r') or die "failed to open $err_filename";
-#    while (my $line = $err_fh->getline) {
-#        print STDERR $line;
-#    }
 
     my $out_fh = IO::File->new($out_filename, 'r') or die "failed to open $out_filename";
     while (my $line = $out_fh->getline) {

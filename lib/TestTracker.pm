@@ -9,15 +9,17 @@ use DBI;
 use File::Spec;
 use Getopt::Long;
 use Pod::Usage;
-use TestTracker::Config qw($db_user $db_password $db_host $db_schema $db_name $test_regex);
+use TestTracker::Config;
 use List::MoreUtils qw(uniq);
 
 use Carp qw(croak);
 
+
 sub db_connection {
-    my $dsn = sprintf('dbi:Pg:dbname=%s;host=%s', $db_name, $db_host);
+    my %config = TestTracker::Config::load();
+    my $dsn = sprintf('dbi:Pg:dbname=%s;host=%s', $config{db_name}, $config{db_host});
     my $dbh = DBI->connect(
-        $dsn, $db_user, $db_password, {RaiseError => 1, AutoCommit => 0}
+        $dsn, $config{db_user}, $config{db_password}, {RaiseError => 1, AutoCommit => 0}
     ) or die $DBI::errstr;
     return $dbh;
 }
@@ -32,6 +34,9 @@ sub git_base_dir {
 
 sub changed_files_from_git {
     my @git_log_args = @_;
+
+    my %config = TestTracker::Config::load();
+
     my $git_log_cmd = sprintf(q(git log --pretty="format:" --name-only "%s"), join('" "', @git_log_args));
     my @commited_changed_files = qx_autodie($git_log_cmd);
     chomp @commited_changed_files;
@@ -43,6 +48,7 @@ sub changed_files_from_git {
     my $git_base_dir = git_base_dir();
 
     my @changed_files =
+        grep { /$config{test_regex}|$config{module_regex}/ }
         grep { $_ !~ /^$/ }
         @commited_changed_files, @working_changed_files;
 
@@ -67,8 +73,9 @@ sub durations_for_tests {
     unless (@_) {
         croak 'times_for_tests takes one or more test filenames (git_files)';
     }
+    my %config = TestTracker::Config::load();
     my $dbh = db_connection();
-    my @results = _durations_for_tests($dbh, $db_schema, @_);
+    my @results = _durations_for_tests($dbh, $config{db_schema}, @_);
     $dbh->disconnect();
     return @results;
 }
@@ -97,10 +104,11 @@ sub modules_for_tests {
     unless (@tests) {
         croak 'times_for_tests takes one or more test filenames (git_files)';
     }
+    my %config = TestTracker::Config::load();
     my $dbh = db_connection();
     my %results;
     for my $test (@tests) {
-        my @modules = _modules_for_test($dbh, $db_schema, $test, @relevant_modules);
+        my @modules = _modules_for_test($dbh, $config{db_schema}, $test, @relevant_modules);
         $results{$test} = \@modules;
     }
     $dbh->disconnect();
@@ -125,34 +133,67 @@ sub tests_for_git_files {
     unless (@_) {
         croak 'tests_for_git_files takes one or more module paths';
     }
+    my %config = TestTracker::Config::load();
     my $dbh = db_connection();
-    return _tests_for_modules($dbh, $db_schema, @_);
+    return _tests_for_modules($dbh, $config{db_schema}, @_);
 }
 
-sub git_path {
-    my $abs_path = shift;
+sub _validate_paths {
+    my @paths = @_;
 
-    unless ($abs_path) {
-        croak 'git_path takes one argument';
+    unless (@paths) {
+        return 'one or more arguments required';
     }
 
-    my $git_base_dir = git_base_dir();
-    my ($git_path) = $abs_path =~ /^${git_base_dir}(.*)$/;
+    my @ne_paths = grep { ! -e $_ } @paths;
+    if (@ne_paths) {
+        my $msg = sprintf('one or more relative paths do not exist: %s',
+            join(', ', @ne_paths));
+        return $msg;
+    }
 
+    return;
+}
+
+sub _rel2git {
+    my $rel_path = shift;
+    my $abs_path = File::Spec->rel2abs($rel_path);
+    my ($git_path) = abs2git($abs_path);
     return $git_path;
 }
 
-sub git_files {
-    my @files = @_;
-    return map { git_path($_) } @files;
+
+sub rel2git {
+    my @rel_paths = @_;
+
+    my $error = _validate_paths(@rel_paths);
+    if ($error) {
+        croak "rel2git: $error";
+    }
+
+    return map { _rel2git($_) } @rel_paths;
 }
 
-sub absolute_path {
-    my $git_path = shift;
+sub _abs2git {
+    my $abs_path = shift;
+    my $git_base_dir = git_base_dir();
+    my ($git_path) = $abs_path =~ /^${git_base_dir}(.*)$/;
+    return $git_path;
+}
 
-    unless ($git_path) {
-        croak 'absolute_path takes one argument';
+sub abs2git {
+    my @abs_paths = @_;
+
+    my $error = _validate_paths(@abs_paths);
+    if ($error) {
+        croak "rel2git: $error";
     }
+
+    return map { _abs2git($_) } @abs_paths;
+}
+
+sub _git2abs {
+    my $git_path = shift;
 
     my $git_base_dir = git_base_dir();
     my $abs_path = File::Spec->join($git_base_dir, $git_path);
@@ -160,24 +201,31 @@ sub absolute_path {
     return $abs_path;
 }
 
-sub absolute_files {
-    my @files = @_;
-    return map { absolute_path($_) } @files;
+sub git2abs {
+    my @git_paths = @_;
+
+    unless (@git_paths) {
+        croak 'git2abs: one or more arguments required';
+    }
+
+    return map { _git2abs($_) } @git_paths;
 }
 
 sub tests_for_git_changes {
     my @git_log_args = @_;
+
+    my %config = TestTracker::Config::load();
 
     my @changed_files = changed_files_from_git(@git_log_args);
 
     my @tests;
     if (@changed_files) {
         push @tests, tests_for_git_files(@changed_files);
-        push @tests, grep { /$test_regex/ } @changed_files;
+        push @tests, grep { /$config{test_regex}/ } @changed_files;
     }
 
     # Convert "git path" to "absolute path" and then to "relative path"
-    my @rel_tests = uniq map { File::Spec->abs2rel($_) } absolute_files(@tests);
+    my @rel_tests = uniq map { File::Spec->abs2rel($_) } git2abs(@tests);
     return grep { -f $_ } @rel_tests;
 }
 
@@ -263,6 +311,18 @@ sub default_git_arg {
     }
 
     return "$remote_branch..";
+}
+
+sub format_duration {
+    my $duration = shift;
+
+    my $hours = int($duration/3600);
+    my $remainder = $duration - $hours*3600;
+
+    my $minutes = int($remainder/60);
+    my $seconds = $remainder - $minutes*60;
+
+    return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
 }
 
 1;

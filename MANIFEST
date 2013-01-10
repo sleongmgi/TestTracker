@@ -11,6 +11,9 @@ bin/test-tracker-exec-tracker-helper
 bin/test-tracker-list
 bin/test-tracker-prove
 dist.ini
+env.sh
 lib/TestTracker.pm
 lib/TestTracker/Config.pm
 lib/TestTracker/Executor.pm
+t/unit/TestTracker/format_duration.t
+t/unit/TestTracker/qx_autodie.t
