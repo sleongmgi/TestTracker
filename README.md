@@ -24,6 +24,7 @@ These notes are a work in progress and specific to my environment. PSEUDO CODE:
 
     # update the changelog
     git-dch -N $PKG_VERSION
+    vim debian/changelog
     git commit -m "Updated changelog for $PKG_VERSION." debian/changelog
     git tag -a -m "" $DISTRO/$PKG_VERSION
     git push --all
@@ -38,4 +39,10 @@ These notes are a work in progress and specific to my environment. PSEUDO CODE:
     cd ~/git-buildpackage
     sbuild --source --dist=lucid-amd64 --arch-all libtesttracker-perl_$PKG_VERSION.dsc
     rsync -av --delete /home/vmuser/sbuild/build/ nnutter@linus43:~/pkg/
+    logout
+
+    # Test package locally.
+    dpkg -i ~/pkg/libtesttracker-perl_$PKG_VERSION*.deb
+
+    # Push package to repo.
     tgi-dput ~/pkg/libtesttracker-perl_$PKG_VERSION*.changes
