@@ -1,3 +1,14 @@
+libtesttracker-perl (0.008-1) lucid; urgency=low
+
+  * Show duration info when listing tests.
+  * Show estimated duration when running prove with --git option.
+  * Fix: Deduplicate test list.
+  * Fix: Limit detected changes to those matching module_regex or test_regex.
+  * Fix: Load config at runtime instead of compile time.
+  * Miscellaneous fixes and cleanup.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Thu, 10 Jan 2013 13:47:54 -0600
+
 libtesttracker-perl (0.007-1) lucid; urgency=low
 
   [ 0.007-1 Changes ]
