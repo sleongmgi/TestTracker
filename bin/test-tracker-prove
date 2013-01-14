@@ -18,6 +18,8 @@ my %options = TestTracker::parse_args(
     pass_through => 1,
     'track' => 'track',
     'lsf'   => 'lsf',
+    'lsf-tail'   => 'lsf-tail',
+    'lsf-interactive'   => 'lsf-interactive',
     'jobs'  => 'jobs=i',
 );
 
@@ -25,7 +27,7 @@ if ($options{'track'} && $options{'lsf'}) {
     die '--track and --lsf are mutually exclusive options.';
 }
 
-if ($options{'track'} || $options{'lsf'}) {
+if ($options{'track'} || $options{'lsf'} || $options{'lsf-tail'}) {
     setup_log_directory();
     unless ($options{jobs}) {
         $options{jobs} = 10;
@@ -34,6 +36,14 @@ if ($options{'track'} || $options{'lsf'}) {
 
 if ($options{jobs}) {
     unshift @ARGV, '--jobs', $options{jobs};
+}
+
+if ($options{'lsf-interactive'}) {
+    unshift @ARGV, '--exec', 'test-tracker-exec-lsf-interactive';
+}
+
+if ($options{'lsf-tail'}) {
+    unshift @ARGV, '--exec', 'test-tracker-exec-lsf-tail';
 }
 
 if ($options{'lsf'}) {
