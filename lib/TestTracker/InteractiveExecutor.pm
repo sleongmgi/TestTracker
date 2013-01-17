@@ -24,9 +24,9 @@ sub main {
     waitpid($pid, 0);
     if($? != 0) {
         print STDERR "\n\n";
-        print STDERR "***** PROVE EXECUTOR STDERR *****\n";
+        print STDERR "***** $test_name STDERR *****\n";
         print STDERR @stderr;
-        print STDERR '*' x 33, "\n";
+        print STDERR '*' x (length($test_name) + 19), "\n";
         print STDERR "\n";
     }
 }
