@@ -26,8 +26,8 @@ my %WriteMakefileArgs = (
     "bin/test-tracker-exec-tracker-helper",
     "bin/test-tracker-list",
     "bin/test-tracker-exec-lsf-interactive",
-    "bin/test-tracker-exec-lsf-tail",
-    "bin/test-tracker-exec-lsf-redirect"
+    "bin/test-tracker-exec-lsf-redirect",
+    "bin/test-tracker-exec-lsf-tail"
   ],
   "LICENSE" => "perl",
   "NAME" => "TestTracker",
@@ -51,7 +51,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.009",
+  "VERSION" => "0.010",
   "test" => {
     "TESTS" => "t/unit/TestTracker/*.t"
   }
