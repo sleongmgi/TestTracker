@@ -22,12 +22,15 @@ requires:
   File::Spec: 0
   Getopt::Long: 0
   IO::File: 0
+  IPC::Open3: 0
   IPC::System::Simple: 0
   List::MoreUtils: 0
   List::Util: 0
+  POSIX: 0
   Pod::Usage: 0
+  Symbol: 0
   YAML: 0
   autodie: 0
   strict: 0
   warnings: 0
-version: 0.008
+version: 0.009

@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use TestTracker::RedirectExecutor;
+
+TestTracker::RedirectExecutor::main($^X, @ARGV);

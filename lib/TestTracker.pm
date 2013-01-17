@@ -1,19 +1,17 @@
-package TestTracker;
-
 use strict;
 use warnings;
 
-use IPC::System::Simple; # needed for autodie's :system
-use autodie qw(:system);
+package TestTracker;
+
+use Carp qw(croak);
 use DBI;
 use File::Spec;
 use Getopt::Long;
+use IPC::System::Simple qw(capture);
+use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use TestTracker::Config;
-use List::MoreUtils qw(uniq);
-
-use Carp qw(croak);
-
+use autodie qw(:system);
 
 sub db_connection {
     my %config = TestTracker::Config::load();
@@ -25,7 +23,7 @@ sub db_connection {
 }
 
 sub git_base_dir {
-    my $git_dir = qx_autodie(qq(git rev-parse --git-dir));
+    my $git_dir = capture(qq(git rev-parse --git-dir));
     chomp $git_dir;
     my $abs_git_dir = File::Spec->rel2abs($git_dir);
     my $git_base_dir = (File::Spec->splitpath($abs_git_dir))[1];
@@ -38,11 +36,11 @@ sub changed_files_from_git {
     my %config = TestTracker::Config::load();
 
     my $git_log_cmd = sprintf(q(git log --pretty="format:" --name-only "%s"), join('" "', @git_log_args));
-    my @commited_changed_files = qx_autodie($git_log_cmd);
+    my @commited_changed_files = capture($git_log_cmd);
     chomp @commited_changed_files;
 
     # TODO this does not account for renames, e.g. "R  foo -> bar"
-    my @working_changed_files = qx_autodie(q(git status --porcelain | awk '{print $2}'));
+    my @working_changed_files = capture(q(git status --porcelain | awk '{print $2}'));
     chomp @working_changed_files;
 
     my $git_base_dir = git_base_dir();
@@ -272,35 +270,15 @@ sub parse_args {
     return %options;
 }
 
-sub qx_autodie {
-    my $cmd = shift;
-
-    my @rv = qx($cmd);
-    if ($? != 0) {
-        if ($? == -1) {
-            die qq{"$cmd" failed to start};
-        } else {
-            my $exit_code = $? >> 8;
-            die qq{"$cmd" failed ($exit_code)};
-        }
-    }
-
-    if (wantarray) {
-        return @rv;
-    } else {
-        return join('', @rv);
-    }
-}
-
 sub default_git_arg {
-    my $branch_name = qx_autodie('git rev-parse --abbrev-ref HEAD');
+    my $branch_name = capture('git rev-parse --abbrev-ref HEAD');
     chomp $branch_name;
 
     # TODO what if the config doesn't exist?
-    my $remote = qx(git config branch.$branch_name.remote);
+    my $remote = capture(qq(git config branch.$branch_name.remote));
     chomp $remote;
 
-    my $remote_ref = qx(git config branch.$branch_name.merge);
+    my $remote_ref = capture(qq(git config branch.$branch_name.merge));
     chomp $remote_ref;
 
     my ($remote_branch_name) = $remote_ref =~ /refs\/heads\/(.*)/;

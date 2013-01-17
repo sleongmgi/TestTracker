@@ -21,11 +21,13 @@ my %WriteMakefileArgs = (
   "DISTNAME" => "TestTracker",
   "EXE_FILES" => [
     "bin/test-tracker",
-    "bin/test-tracker-exec-lsf",
+    "bin/test-tracker-prove",
     "bin/test-tracker-exec-tracker",
     "bin/test-tracker-exec-tracker-helper",
     "bin/test-tracker-list",
-    "bin/test-tracker-prove"
+    "bin/test-tracker-exec-lsf-interactive",
+    "bin/test-tracker-exec-lsf-tail",
+    "bin/test-tracker-exec-lsf-redirect"
   ],
   "LICENSE" => "perl",
   "NAME" => "TestTracker",
@@ -37,16 +39,19 @@ my %WriteMakefileArgs = (
     "File::Spec" => 0,
     "Getopt::Long" => 0,
     "IO::File" => 0,
+    "IPC::Open3" => 0,
     "IPC::System::Simple" => 0,
     "List::MoreUtils" => 0,
     "List::Util" => 0,
+    "POSIX" => 0,
     "Pod::Usage" => 0,
+    "Symbol" => 0,
     "YAML" => 0,
     "autodie" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.008",
+  "VERSION" => "0.009",
   "test" => {
     "TESTS" => "t/unit/TestTracker/*.t"
   }

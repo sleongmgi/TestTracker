@@ -5,4 +5,4 @@ use warnings;
 
 use TestTracker::InteractiveExecutor;
 
-TestTracker::InteractiveExecutor::main('test-tracker-exec-tracker-helper', @ARGV);
+TestTracker::InteractiveExecutor::main($^X, @ARGV);
