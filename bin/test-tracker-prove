@@ -71,7 +71,7 @@ if ($o{'git'}) {
         my $t = $estimated_duration / $o{jobs};
         $estimated_duration = max($t, max(@test_durations));
     }
-    printf STDERR "Found %d tests %s which would take an estimated %d seconds (%s) to run.\n",
+    printf STDERR "Found %d tests %s which would take an estimated %d seconds (%s) to run.\n\n",
         scalar(@tests), $msg_suffix, $estimated_duration, TestTracker::format_duration($estimated_duration);
     push @ARGV, @tests;
 }
