@@ -15,19 +15,22 @@ use List::MoreUtils qw(uniq);
 my %config = TestTracker::Config::load();
 
 my %o = TestTracker::parse_args(
-    pass_through => 1,
-    'track' => 'track',
-    'lsf'   => 'lsf',
-    'lsf-tail'   => 'lsf-tail',
-    'lsf-interactive'   => 'lsf-interactive',
-    'jobs'  => 'jobs=i',
+    pass_through      => 1,
+#   'option'          => 'arg_schema',
+    'track'           => 'track',
+    'lsf-redirect'    => 'lsf-redirect',
+    'lsf-tail'        => 'lsf-tail',
+    'lsf-interactive' => 'lsf',
+    'jobs'            => 'jobs=i',
 );
 
-if ($o{'track'} && $o{'lsf'}) {
+my $lsf = ($o{'lsf-interactive' || $o{'lsf-redirect'}} || $o{'lsf-tail'});
+
+if ($o{'track'} && $lsf) {
     die '--track and --lsf are mutually exclusive options.';
 }
 
-if ($o{'track'} || $o{'lsf'} || $o{'lsf-tail'}) {
+if ($o{'track'} || $lsf) {
     setup_log_directory();
     unless ($o{jobs}) {
         $o{jobs} = 10;
@@ -46,8 +49,8 @@ if ($o{'lsf-tail'}) {
     unshift @ARGV, '--exec', 'test-tracker-exec-lsf-tail';
 }
 
-if ($o{'lsf'}) {
-    unshift @ARGV, '--exec', 'test-tracker-exec-lsf';
+if ($o{'lsf-redirect'}) {
+    unshift @ARGV, '--exec', 'test-tracker-exec-lsf-redirect';
 }
 
 if ($o{'track'}) {

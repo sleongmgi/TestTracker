@@ -1,4 +1,4 @@
-package TestTracker::Executor;
+package TestTracker::RedirectExecutor;
 
 use strict;
 use warnings;

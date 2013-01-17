@@ -3,6 +3,6 @@
 use strict;
 use warnings;
 
-use TestTracker::Executor;
+use TestTracker::InteractiveExecutor;
 
-TestTracker::Executor::main('test-tracker-exec-tracker-helper', @ARGV);
+TestTracker::InteractiveExecutor::main('test-tracker-exec-tracker-helper', @ARGV);
