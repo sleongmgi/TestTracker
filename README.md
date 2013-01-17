@@ -23,8 +23,7 @@ These notes are a work in progress and specific to my environment. PSEUDO CODE:
     rm -f /tmp/TestTracker-$SRC_VERSION.tar.gz
 
     # update the changelog
-    git-dch -N $PKG_VERSION
-    vim debian/changelog
+    dch -v $PKG_VERSION
     git commit -m "Updated changelog for $PKG_VERSION." debian/changelog
     git tag -a -m "" $DISTRO/$PKG_VERSION
     git push --all
@@ -32,11 +31,12 @@ These notes are a work in progress and specific to my environment. PSEUDO CODE:
 
     # build package
     ssh vmpool39
+    PKG_VERSION=$PKG_VERSION
     cd ~/git-buildpackage/TestTracker
     git pull --ff-only
     git-buildpackage -us -uc -S
     rm -rf ~/sbuild/build/*
-    cd ~/git-buildpackage
+    cd ..
     sbuild --source --dist=lucid-amd64 --arch-all libtesttracker-perl_$PKG_VERSION.dsc
     rsync -av --delete /home/vmuser/sbuild/build/ nnutter@linus43:~/pkg/
     logout
@@ -45,4 +45,5 @@ These notes are a work in progress and specific to my environment. PSEUDO CODE:
     dpkg -i ~/pkg/libtesttracker-perl_$PKG_VERSION*.deb
 
     # Push package to repo.
-    tgi-dput ~/pkg/libtesttracker-perl_$PKG_VERSION*.changes
+    cd ~/pkg
+    tgi-dput libtesttracker-perl_$PKG_VERSION*.changes
