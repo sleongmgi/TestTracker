@@ -5,7 +5,9 @@ Makefile.PL
 README
 README.md
 bin/test-tracker
-bin/test-tracker-exec-lsf
+bin/test-tracker-exec-lsf-interactive
+bin/test-tracker-exec-lsf-redirect
+bin/test-tracker-exec-lsf-tail
 bin/test-tracker-exec-tracker
 bin/test-tracker-exec-tracker-helper
 bin/test-tracker-list
@@ -14,6 +16,7 @@ dist.ini
 env.sh
 lib/TestTracker.pm
 lib/TestTracker/Config.pm
-lib/TestTracker/Executor.pm
+lib/TestTracker/InteractiveExecutor.pm
+lib/TestTracker/RedirectExecutor.pm
+lib/TestTracker/TailExecutor.pm
 t/unit/TestTracker/format_duration.t
-t/unit/TestTracker/qx_autodie.t

@@ -1,11 +1,15 @@
+use strict;
+use warnings;
+
 package TestTracker::Config;
 
-use YAML;
 use File::Spec;
+use IPC::System::Simple qw(capture);
+use YAML;
 
 sub _load {
     my $git_base_dir = git_base_dir();
-    $config_file = File::Spec->join($git_base_dir, '.test-tracker.conf');
+    my $config_file = File::Spec->join($git_base_dir, '.test-tracker.conf');
 
     unless (-f $config_file) {
         die "config_file not found: $config_file";
@@ -35,35 +39,14 @@ sub load {
     return %config;
 }
 
-# TODO Both git_base_dir and qx_autodie are copy-pasted from TestTracker.
-# Need to refactor.
+# TODO git_base_dir is copy-pasted from TestTracker.  Need to refactor.
 
 sub git_base_dir {
-    my $git_dir = qx_autodie(qq(git rev-parse --git-dir));
+    my $git_dir = capture(qq(git rev-parse --git-dir));
     chomp $git_dir;
     my $abs_git_dir = File::Spec->rel2abs($git_dir);
     my $git_base_dir = (File::Spec->splitpath($abs_git_dir))[1];
     return $git_base_dir;
-}
-
-sub qx_autodie {
-    my $cmd = shift;
-
-    my @rv = qx($cmd);
-    if ($? != 0) {
-        if ($? == -1) {
-            die qq{"$cmd" failed to start};
-        } else {
-            my $exit_code = $? >> 8;
-            die qq{"$cmd" failed ($exit_code)};
-        }
-    }
-
-    if (wantarray) {
-        return @rv;
-    } else {
-        return join('', @rv);
-    }
 }
 
 1;

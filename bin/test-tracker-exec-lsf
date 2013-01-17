@@ -1,8 +1,0 @@
-#!/usr/bin/perl
-
-use strict;
-use warnings;
-
-use TestTracker::Executor;
-
-TestTracker::Executor::main($^X, @ARGV);
