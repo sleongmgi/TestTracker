@@ -17,6 +17,7 @@ my %config = TestTracker::Config::load();
 my %o = TestTracker::parse_args(
     pass_through      => 1,
 #   'option'          => 'arg_schema',
+    'junit'           => 'junit',
     'track'           => 'track',
     'lsf-redirect'    => 'lsf-redirect',
     'lsf-tail'        => 'lsf-tail',
@@ -35,6 +36,10 @@ if ($o{'track'} || $lsf) {
     unless ($o{jobs}) {
         $o{jobs} = 10;
     }
+}
+
+if ($o{'junit'}) {
+    unshift @ARGV, '--timer', '--formatter TAP::Formatter::JUnit';
 }
 
 if ($o{jobs}) {
@@ -108,6 +113,7 @@ __END__
      Options:
        --lsf                                bsub test(s) to your LSF cluster
        --git [<since>..<until>]             determine test(s) to run from Git changes
+       --junit                              enable JUnit output
        --help                               brief help message
        --man                                full documentation
 
