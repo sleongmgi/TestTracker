@@ -39,7 +39,7 @@ if ($o{'track'} || $lsf) {
 }
 
 if ($o{'junit'}) {
-    unshift @ARGV, '--timer', '--formatter TAP::Formatter::JUnit';
+    unshift @ARGV, '--timer', '--formatter', 'TAP::Formatter::JUnit';
 }
 
 if ($o{jobs}) {
