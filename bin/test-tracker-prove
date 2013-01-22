@@ -31,19 +31,20 @@ if ($o{'track'} && $lsf) {
     die '--track and --lsf are mutually exclusive options.';
 }
 
-if ($o{'track'} || $lsf) {
-    setup_log_directory();
-    unless ($o{jobs}) {
-        $o{jobs} = 10;
-    }
+if (!$o{jobs} && ($o{'track'} || $lsf)) {
+    $o{jobs} = 10;
 }
 
 if ($o{'junit'}) {
-    unshift @ARGV, '--timer', '--formatter TAP::Formatter::JUnit';
+    unshift @ARGV, '--timer', '--formatter', 'TAP::Formatter::JUnit';
 }
 
 if ($o{jobs}) {
     unshift @ARGV, '--jobs', $o{jobs};
+}
+
+if ($o{'lsf-interactive'} || $o{'lsf-tail'}) {
+    setup_log_directory();
 }
 
 if ($o{'lsf-interactive'}) {
