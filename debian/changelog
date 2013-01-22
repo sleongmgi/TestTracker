@@ -1,3 +1,12 @@
+libtesttracker-perl (0.012-1) lucid; urgency=low
+
+  * Fix: Only setup log directories when needed.
+  * Fix: Do not die when no tests for git changes.
+  * Fix: Do not create '0' file (due to improper quoting of awk pipe).
+  * Fix: --junit option will not cause prove to throw a argument parse error.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Tue, 22 Jan 2013 16:53:59 -0600
+
 libtesttracker-perl (0.011-1) lucid; urgency=low
 
   * Fix: Add --junit option.
