@@ -221,6 +221,7 @@ sub tests_for_git_changes {
         push @tests, tests_for_git_files(@changed_files);
         push @tests, grep { /$config{test_regex}/ } @changed_files;
     }
+    return unless @tests;
 
     # Convert "git path" to "absolute path" and then to "relative path"
     my @rel_tests = uniq map { File::Spec->abs2rel($_) } git2abs(@tests);
