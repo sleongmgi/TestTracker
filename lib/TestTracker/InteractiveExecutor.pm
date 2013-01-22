@@ -13,8 +13,9 @@ sub main {
     # This redirects the first job submitted message to STDERR which is the
     # message for the bsub of the test itself but not any that might occur
     # during the test. Otherwise there will be a lot of these messages.
-    my $awk = qq|{ if (/$job_regex/ && count++ == 0) print > "/dev/stderr"; else print }|;
-    my $cmd = qq(bash -c "set -o pipefail; bsub -Is -q short '$exec' '$test_name' | awk '$awk'");
+    # Be super careful with quoting!
+    my $awk = qq|awk '{ if (/$job_regex/ && count++ == 0) print \\\$0 > \\"/dev/stderr\\"; else print \\\$0; }'|;
+    my $cmd = qq(bash -c "set -o pipefail; bsub -Is -q short '$exec' '$test_name' | $awk");
 
     # Child's STDERR is "trapped" into CHLDERR and only shown if the child
     # exits non-zero, e.g. if it crashes. This keeps the output clean but still
