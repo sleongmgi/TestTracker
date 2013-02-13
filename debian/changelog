@@ -1,3 +1,10 @@
+libtesttracker-perl (0.013-1) lucid; urgency=low
+
+  * Fix: list subcommand no longer exits non-zero when there are no files or
+    no coverage.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Wed, 13 Feb 2013 16:31:45 -0600
+
 libtesttracker-perl (0.012-1) lucid; urgency=low
 
   * Fix: Only setup log directories when needed.
