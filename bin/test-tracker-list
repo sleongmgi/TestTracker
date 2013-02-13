@@ -37,16 +37,16 @@ if (defined $options{'git'}) {
 
 @git_files = uniq @git_files;
 unless (@git_files) {
-    printf STDERR ("ERROR: No files provided.\n");
-    exit 1;
+    printf STDERR ("No files provided.\n");
+    exit;
 }
 
 my @tests = TestTracker::tests_for_git_files(@git_files);
 push @tests, grep { /$config{test_regex}/ } @git_files;
 
 unless (@tests) {
-    print STDERR "ERROR: No test coverage for:\n\t", join("\n\t", @git_files), "\n";
-    exit 1;
+    print STDERR "No test coverage for:\n\t", join("\n\t", @git_files), "\n";
+    exit;
 }
 
 my %modules_for_tests;
