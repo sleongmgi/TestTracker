@@ -1,3 +1,9 @@
+libtesttracker-perl (0.014-1) lucid; urgency=low
+
+  * Fix: Restore working directory after test if it was changed.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Wed, 20 Feb 2013 09:48:12 -0600
+
 libtesttracker-perl (0.013-1) lucid; urgency=low
 
   * Fix: list subcommand no longer exits non-zero when there are no files or
