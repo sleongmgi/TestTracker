@@ -33,6 +33,7 @@ my %WriteMakefileArgs = (
   "NAME" => "TestTracker",
   "PREREQ_PM" => {
     "Carp" => 0,
+    "Cwd" => 0,
     "DBI" => 0,
     "Data::UUID" => 0,
     "File::Path" => 0,
@@ -51,7 +52,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.013",
+  "VERSION" => "0.014",
   "test" => {
     "TESTS" => "t/unit/TestTracker/*.t"
   }
