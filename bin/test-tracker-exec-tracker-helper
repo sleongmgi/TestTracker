@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 
+use Cwd qw(cwd);
 use TestTracker::Config;
 use TestTracker;
 
@@ -16,6 +17,7 @@ my $elapsed_time = -1;
 {
     local ($@, $!) = (undef, undef);
     my $start_time = time;
+    my $cwd = cwd();
     my $rv = do $test_name;
     unless (defined $rv) {
         my $error = $@ || $!;
@@ -23,6 +25,11 @@ my $elapsed_time = -1;
         exit 1;
     }
     $elapsed_time = time - $start_time;
+
+    # in case the test does a chdir
+    unless (cwd() eq $cwd) {
+        chdir($cwd);
+    }
 }
 
 my $git_base_dir = TestTracker::git_base_dir();

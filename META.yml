@@ -16,6 +16,7 @@ meta-spec:
 name: TestTracker
 requires:
   Carp: 0
+  Cwd: 0
   DBI: 0
   Data::UUID: 0
   File::Path: 0
@@ -33,4 +34,4 @@ requires:
   autodie: 0
   strict: 0
   warnings: 0
-version: 0.013
+version: 0.014
