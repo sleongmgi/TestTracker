@@ -54,10 +54,10 @@ sub changed_files_from_git {
 }
 
 sub _durations_for_tests {
-    my ($dbh, $db_schema, @tests) = @_;
+    my ($dbh, $db_prefix, @tests) = @_;
 
     my $sql = sprintf(qq{
-        SELECT name, duration FROM $db_schema.test
+        SELECT name, duration FROM ${db_prefix}test
         WHERE name IN (%s)
         }, join(', ', map { '?' } @tests));
 
@@ -73,20 +73,20 @@ sub durations_for_tests {
     }
     my %config = TestTracker::Config::load();
     my $dbh = db_connection();
-    my @results = _durations_for_tests($dbh, $config{db_schema}, @_);
+    my @results = _durations_for_tests($dbh, $config{db_prefix}, @_);
     $dbh->disconnect();
     return @results;
 }
 
 
 sub _modules_for_test {
-    my ($dbh, $db_schema, $test, @modules) = @_;
+    my ($dbh, $db_prefix, $test, @modules) = @_;
 
     my $sql = sprintf(qq{
-        SELECT $db_schema.module.name FROM $db_schema.module JOIN
-        $db_schema.module_test ON $db_schema.module.id = $db_schema.module_test.module_id JOIN
-        $db_schema.test ON $db_schema.module_test.test_id = $db_schema.test.id
-        WHERE $db_schema.test.name = ? AND $db_schema.module.name IN (%s)
+        SELECT ${db_prefix}module.name FROM ${db_prefix}module JOIN
+        ${db_prefix}module_test ON ${db_prefix}module.id = ${db_prefix}module_test.module_id JOIN
+        ${db_prefix}test ON ${db_prefix}module_test.test_id = ${db_prefix}test.id
+        WHERE ${db_prefix}test.name = ? AND ${db_prefix}module.name IN (%s)
     }, join(', ', map { '?' } @modules));
 
     my @module_names = map { $_->[0] } @{$dbh->selectall_arrayref($sql, {}, $test, @modules)};
@@ -106,7 +106,7 @@ sub modules_for_tests {
     my $dbh = db_connection();
     my %results;
     for my $test (@tests) {
-        my @modules = _modules_for_test($dbh, $config{db_schema}, $test, @relevant_modules);
+        my @modules = _modules_for_test($dbh, $config{db_prefix}, $test, @relevant_modules);
         $results{$test} = \@modules;
     }
     $dbh->disconnect();
@@ -114,13 +114,13 @@ sub modules_for_tests {
 }
 
 sub _tests_for_modules {
-    my ($dbh, $db_schema, @modules) = @_;
+    my ($dbh, $db_prefix, @modules) = @_;
 
     my $sql = sprintf(qq{
-        SELECT DISTINCT($db_schema.test.name) FROM $db_schema.module_test
-        JOIN $db_schema.test ON $db_schema.test.id = $db_schema.module_test.test_id
-        JOIN $db_schema.module ON $db_schema.module.id = $db_schema.module_test.module_id
-        WHERE $db_schema.module.name IN (%s)
+        SELECT DISTINCT(${db_prefix}test.name) FROM ${db_prefix}module_test
+        JOIN ${db_prefix}test ON ${db_prefix}test.id = ${db_prefix}module_test.test_id
+        JOIN ${db_prefix}module ON ${db_prefix}module.id = ${db_prefix}module_test.module_id
+        WHERE ${db_prefix}module.name IN (%s)
         }, join(', ', map { '?' } @modules));
 
     my @test_names = map { $_->[0] } @{$dbh->selectall_arrayref($sql, {}, @modules)};
@@ -133,7 +133,7 @@ sub tests_for_git_files {
     }
     my %config = TestTracker::Config::load();
     my $dbh = db_connection();
-    return _tests_for_modules($dbh, $config{db_schema}, @_);
+    return _tests_for_modules($dbh, $config{db_prefix}, @_);
 }
 
 sub _validate_paths {
