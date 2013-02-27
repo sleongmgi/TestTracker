@@ -15,9 +15,8 @@ use autodie qw(:system);
 
 sub db_connection {
     my %config = TestTracker::Config::load();
-    my $dsn = sprintf('dbi:Pg:dbname=%s;host=%s', $config{db_name}, $config{db_host});
     my $dbh = DBI->connect(
-        $dsn, $config{db_user}, $config{db_password}, {RaiseError => 1, AutoCommit => 0}
+        $config{db_dsn}, $config{db_user}, $config{db_password}, {RaiseError => 1, AutoCommit => 0}
     ) or die $DBI::errstr;
     return $dbh;
 }
