@@ -45,6 +45,7 @@ sub changed_files_from_git {
     my $git_base_dir = git_base_dir();
 
     my @changed_files =
+        grep { -e $_ }
         grep { /$config{test_regex}|$config{module_regex}/ }
         grep { $_ !~ /^$/ }
         @commited_changed_files, @working_changed_files;
@@ -139,6 +140,15 @@ sub tests_for_git_files {
     my %config = TestTracker::Config::load();
     my $dbh = db_connection();
     return _tests_for_modules($dbh, $config{db_prefix}, @_);
+}
+
+sub all_tracked_tests {
+    my %config = TestTracker::Config::load();
+    my $dbh = db_connection();
+    my $db_prefix = $config{db_prefix};
+    my $sql = qq(SELECT name FROM ${db_prefix}test;);
+    my @test_names = map { $_->[0] } @{$dbh->selectall_arrayref($sql)};
+    return @test_names;
 }
 
 sub _validate_paths {
@@ -277,24 +287,12 @@ sub parse_args {
 }
 
 sub default_git_arg {
-    my $branch_name = capture('git rev-parse --abbrev-ref HEAD');
-    chomp $branch_name;
-
-    # TODO what if the config doesn't exist?
-    my $remote = capture(qq(git config branch.$branch_name.remote));
-    chomp $remote;
-
-    my $remote_ref = capture(qq(git config branch.$branch_name.merge));
-    chomp $remote_ref;
-
-    my ($remote_branch_name) = $remote_ref =~ /refs\/heads\/(.*)/;
-
-    my $remote_branch = join('/', $remote, $remote_branch_name);
-    if (system("git rev-parse --abbrev-ref $remote_branch > /dev/null") != 0) {
+    my $upstream = capture('git rev-parse --abbrev-ref --symbolic-full-name @{u}');
+    chomp $upstream;
+    unless ($upstream) {
         die 'Failed to infer default_git_arg!';
     }
-
-    return "$remote_branch..";
+    return "$upstream..";
 }
 
 sub format_duration {
