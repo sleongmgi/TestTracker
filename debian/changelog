@@ -1,3 +1,10 @@
+libtesttracker-perl (0.015-1) lucid; urgency=low
+
+  * Fix: Ensure untracked, in TestTracker, tests show up in `tt list --git`.
+  * Support databases other than PostgreSQL.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Fri, 01 Mar 2013 20:03:10 -0600
+
 libtesttracker-perl (0.014-1) lucid; urgency=low
 
   * Fix: Restore working directory after test if it was changed.
