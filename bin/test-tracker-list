@@ -13,6 +13,7 @@ my %config = TestTracker::Config::load();
 
 my %options = TestTracker::parse_args(
     'explain' => 'explain|e',
+    'all'     => 'all',
 );
 
 my @files = @ARGV;
@@ -44,6 +45,11 @@ unless (@git_files) {
 my @tests = TestTracker::tests_for_git_files(@git_files);
 push @tests, grep { /$config{test_regex}/ } @git_files;
 
+if ($options{'all'}) {
+    push @tests, TestTracker::all_tracked_tests();
+}
+
+@tests = uniq @tests;
 unless (@tests) {
     print STDERR "No test coverage for:\n\t", join("\n\t", @git_files), "\n";
     exit;

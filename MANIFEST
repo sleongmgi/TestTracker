@@ -22,5 +22,6 @@ lib/TestTracker/InteractiveExecutor.pm
 lib/TestTracker/RedirectExecutor.pm
 lib/TestTracker/TailExecutor.pm
 t/integration/list.t
+t/unit/TestTracker/all_tracked_tests.t
 t/unit/TestTracker/changed_files_from_git.t
 t/unit/TestTracker/format_duration.t
