@@ -39,58 +39,58 @@ my @git_files = TestTracker::abs2git(@git_inc_paths);
 my @module_names = grep { /$config{module_regex}/ } @git_files;
 
 my $dbh = TestTracker::db_connection();
-upsert_test($dbh, $config{db_schema}, $git_test_name, $elapsed_time);
-upsert_modules($dbh, $config{db_schema}, @module_names);
+upsert_test($dbh, $config{db_prefix}, $git_test_name, $elapsed_time);
+upsert_modules($dbh, $config{db_prefix}, @module_names);
 $dbh->commit();
 
-my $test_id = get_test_id($dbh, $config{db_schema}, $git_test_name);
-replace_bridge_entries($dbh, $config{db_schema}, $test_id, @module_names);
+my $test_id = get_test_id($dbh, $config{db_prefix}, $git_test_name);
+replace_bridge_entries($dbh, $config{db_prefix}, $test_id, @module_names);
 $dbh->commit();
 $dbh->disconnect();
 
 sub upsert_test {
-    my ($dbh, $db_schema, $git_test_name, $duration) = @_;
+    my ($dbh, $db_prefix, $git_test_name, $duration) = @_;
 
-    my $insert_test_or_ignore_sth = $dbh->prepare(qq{INSERT INTO $db_schema.test (name) VALUES (?) EXCEPT (SELECT name FROM $db_schema.test WHERE name = ?)});
+    my $insert_test_or_ignore_sth = $dbh->prepare(qq{INSERT INTO ${db_prefix}test (name) VALUES (?) EXCEPT (SELECT name FROM ${db_prefix}test WHERE name = ?)});
     $insert_test_or_ignore_sth->execute($git_test_name, $git_test_name);
 
-    my $update_test_duration_sth = $dbh->prepare(qq{UPDATE $db_schema.test SET duration = ? WHERE name = ?});
+    my $update_test_duration_sth = $dbh->prepare(qq{UPDATE ${db_prefix}test SET duration = ? WHERE name = ?});
     $update_test_duration_sth->execute($duration, $git_test_name);
 }
 
 sub upsert_modules {
-    my ($dbh, $db_schema, @module_names) = @_;
-    my $insert_module_or_ignore_sth = $dbh->prepare(qq{INSERT INTO $db_schema.module (name) VALUES (?) EXCEPT (SELECT name FROM $db_schema.module WHERE name = ?)});
+    my ($dbh, $db_prefix, @module_names) = @_;
+    my $insert_module_or_ignore_sth = $dbh->prepare(qq{INSERT INTO ${db_prefix}module (name) VALUES (?) EXCEPT (SELECT name FROM ${db_prefix}module WHERE name = ?)});
     for my $module_name (@module_names) {
         $insert_module_or_ignore_sth->execute($module_name, $module_name);
     }
 }
 
 sub get_test_id {
-    my ($dbh, $db_schema, $test_name) = @_;
+    my ($dbh, $db_prefix, $test_name) = @_;
     unless ($test_name) {
         die 'test_name should always be specified.';
     }
-    my $sql = qq{SELECT id FROM $db_schema.test WHERE name = ?};
+    my $sql = qq{SELECT id FROM ${db_prefix}test WHERE name = ?};
     return ($dbh->selectrow_array($sql, {}, $test_name))[0];
 }
 
 sub replace_bridge_entries {
-    my ($dbh, $db_schema, $test_id, @module_names) = @_;
+    my ($dbh, $db_prefix, $test_id, @module_names) = @_;
 
-    my $delete_model_test_sth = $dbh->prepare(qq{DELETE FROM $db_schema.module_test WHERE test_id = ?});
+    my $delete_model_test_sth = $dbh->prepare(qq{DELETE FROM ${db_prefix}module_test WHERE test_id = ?});
     $delete_model_test_sth->execute($test_id);
 
-    for my $module_id (get_module_ids($dbh, $db_schema, @module_names)) {
-        $dbh->do(qq{INSERT INTO $db_schema.module_test (module_id, test_id) values ('$module_id', '$test_id')});
+    for my $module_id (get_module_ids($dbh, $db_prefix, @module_names)) {
+        $dbh->do(qq{INSERT INTO ${db_prefix}module_test (module_id, test_id) values ('$module_id', '$test_id')});
     }
 }
 
 sub get_module_ids {
-    my ($dbh, $db_schema, @module_names) = @_;
+    my ($dbh, $db_prefix, @module_names) = @_;
     unless (@module_names) {
         die "One or more Genome modules should always be loaded or we can't track it properly.";
     }
-    my $sql = sprintf(qq{SELECT id FROM $db_schema.module WHERE name IN (%s)}, join(', ', map { '?' } @module_names));
+    my $sql = sprintf(qq{SELECT id FROM ${db_prefix}module WHERE name IN (%s)}, join(', ', map { '?' } @module_names));
     return map { $_->[0] } @{$dbh->selectall_arrayref($sql, {}, @module_names)};
 }
