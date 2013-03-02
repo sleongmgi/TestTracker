@@ -1,7 +1,7 @@
 Source: libtesttracker-perl
 Section: perl
 Priority: optional
-Build-Depends: debhelper (>= 7)
+Build-Depends: debhelper (>= 7), git-core, libdbd-sqlite3-perl
 Build-Depends-Indep: perl (>= 5.10.1), libyaml-perl, libdata-uuid-perl,
   libipc-system-simple-perl, liblist-moreutils-perl, libdbi-perl
 Maintainer: Nathaniel Nutter <nnutter@genome.wustl.edu>
