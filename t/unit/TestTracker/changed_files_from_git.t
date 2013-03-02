@@ -26,7 +26,6 @@ use TestTracker;
 use File::Temp qw();
 
 my $orig_cwd = cwd();
-my $git_arg = TestTracker::default_git_arg();
 
 is($INC{'TestTracker.pm'}, File::Spec->join($lib_dir, 'TestTracker.pm'),
     "found correct TestTracker.pm");
@@ -35,6 +34,7 @@ my $git_dir = File::Temp->newdir(TMPDIR => 1);
 chdir $git_dir;
 
 create_a_repo($git_dir);
+my $git_arg = TestTracker::default_git_arg();
 
 my $db_filename = db_filename();
 my $conf_filename = conf_filename();
