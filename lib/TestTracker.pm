@@ -62,6 +62,12 @@ sub _durations_for_tests {
 
     my @results = $dbh->selectall_arrayref($sql, {}, @tests);
     @results = sort {$b->[1] <=> $a->[1]} @{$results[0]};
+
+    for my $test (@tests) {
+        unless (grep { $_->[0] eq $test } @results) {
+            push @results, [$test, 0];
+        }
+    }
     return @results
 }
 
