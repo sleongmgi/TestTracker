@@ -141,6 +141,15 @@ sub tests_for_git_files {
     return _tests_for_modules($dbh, $config{db_prefix}, @_);
 }
 
+sub all_tracked_tests {
+    my %config = TestTracker::Config::load();
+    my $dbh = db_connection();
+    my $db_prefix = $config{db_prefix};
+    my $sql = qq(SELECT name FROM ${db_prefix}test;);
+    my @test_names = map { $_->[0] } @{$dbh->selectall_arrayref($sql)};
+    return @test_names;
+}
+
 sub _validate_paths {
     my @paths = @_;
 
