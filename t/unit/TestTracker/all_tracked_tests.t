@@ -54,7 +54,6 @@ run_ok(['git', 'clean', '-xdf']);
 my @test_filenames = sort keys %test_db;
 ok(@test_filenames > 0, 'test database has tracked tests');
 
-$DB::single = 1;
 my @all_tracked_tests = TestTracker::all_tracked_tests();
 @all_tracked_tests = sort @all_tracked_tests;
 is_deeply(\@all_tracked_tests, \@test_filenames, 'got all tracked tests');
