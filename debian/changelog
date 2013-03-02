@@ -1,5 +1,7 @@
-libtesttracker-perl (0.015-1) lucid; urgency=low
+libtesttracker-perl (0.016-1) lucid; urgency=low
 
+  * Fix: Only show tests that still exist.
+  * Add --all option to list command to show all tracked tests.
   * Fix: Ensure untracked, in TestTracker, tests show up in `tt list --git`.
   * Support databases other than PostgreSQL.
 
