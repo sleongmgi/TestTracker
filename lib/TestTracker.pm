@@ -286,24 +286,12 @@ sub parse_args {
 }
 
 sub default_git_arg {
-    my $branch_name = capture('git rev-parse --abbrev-ref HEAD');
-    chomp $branch_name;
-
-    # TODO what if the config doesn't exist?
-    my $remote = capture(qq(git config branch.$branch_name.remote));
-    chomp $remote;
-
-    my $remote_ref = capture(qq(git config branch.$branch_name.merge));
-    chomp $remote_ref;
-
-    my ($remote_branch_name) = $remote_ref =~ /refs\/heads\/(.*)/;
-
-    my $remote_branch = join('/', $remote, $remote_branch_name);
-    if (system("git rev-parse --abbrev-ref $remote_branch > /dev/null") != 0) {
+    my $upstream = capture('git rev-parse --abbrev-ref --symbolic-full-name @{u}');
+    chomp $upstream;
+    unless ($upstream) {
         die 'Failed to infer default_git_arg!';
     }
-
-    return "$remote_branch..";
+    return "$upstream..";
 }
 
 sub format_duration {
