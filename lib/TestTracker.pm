@@ -45,6 +45,7 @@ sub changed_files_from_git {
     my $git_base_dir = git_base_dir();
 
     my @changed_files =
+        grep { -e $_ }
         grep { /$config{test_regex}|$config{module_regex}/ }
         grep { $_ !~ /^$/ }
         @commited_changed_files, @working_changed_files;

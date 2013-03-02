@@ -48,7 +48,6 @@ run_ok(['git', 'add', $db_filename]);
 run_ok(['git', 'commit', '-m ""', $db_filename]);
 
 run_ok(['git', 'tag', '-a', '-m', '', 'start'], 'tagged repo as "start"');
-run_ok(['git', 'reset', '--hard', 'start']);
 run_ok(['git', 'clean', '-xdf']);
 
 my @test_filenames = keys %test_db;
@@ -63,11 +62,17 @@ ok($found_ut, "found uncommitted, tracked test file: '$tt_filename'")
 
 run_ok(['git', 'add', $tt_filename]);
 run_ok(['git', 'commit', '-m ""', $tt_filename]);
-run_ok(['git', 'clean', '-xdf']);
 my @found_ct_capture = TestTracker::changed_files_from_git($git_arg);
 my $found_ct = grep { $_ =~ /^$tt_filename$/ } @found_ct_capture;
 ok($found_ct, "found committed, tracked test file: '$tt_filename'")
     or diag(join("\n", @found_ct_capture));
+
+run_ok(['git', 'rm', $tt_filename]);
+run_ok(['git', 'commit', '-m ""', $tt_filename]);
+my @found_rt_capture = TestTracker::changed_files_from_git($git_arg);
+my $found_rt = grep { $_ =~ /^$tt_filename$/ } @found_rt_capture;
+ok(!$found_rt, "did not find removed test file: '$tt_filename'")
+    or diag(join("\n", @found_rt_capture));
 
 my $tu_filename = 'untracked.t';
 ok((!grep { $_ eq $tu_filename } @test_filenames), 'verified untracked test file is not in test database');
@@ -79,7 +84,6 @@ ok($found_uu, "found uncommitted, untracked test file: '$tu_filename'")
 
 run_ok(['git', 'add', $tu_filename]);
 run_ok(['git', 'commit', '-m ""', $tu_filename]);
-run_ok(['git', 'clean', '-xdf']);
 my @found_cu_capture = TestTracker::changed_files_from_git($git_arg);
 my $found_cu = grep { $_ =~ /^$tu_filename$/ } @found_cu_capture;
 ok($found_cu, "found committed, untracked test file: '$tu_filename'")
