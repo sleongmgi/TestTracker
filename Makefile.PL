@@ -12,8 +12,7 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "Track Perl module and test relationships so you can guess what are the best tests to run.",
   "AUTHOR" => "dmorton and nnutter",
   "BUILD_REQUIRES" => {
-    "File::Basename" => 0,
-    "Test::More" => 0
+    "File::Temp" => 0
   },
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
@@ -36,6 +35,7 @@ my %WriteMakefileArgs = (
     "Cwd" => 0,
     "DBI" => 0,
     "Data::UUID" => 0,
+    "File::Basename" => 0,
     "File::Path" => 0,
     "File::Spec" => 0,
     "Getopt::Long" => 0,
@@ -47,14 +47,17 @@ my %WriteMakefileArgs = (
     "POSIX" => 0,
     "Pod::Usage" => 0,
     "Symbol" => 0,
+    "Test::Builder::Module" => 0,
+    "Test::More" => 0,
     "YAML" => 0,
     "autodie" => 0,
+    "base" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.014",
+  "VERSION" => "0.015",
   "test" => {
-    "TESTS" => "t/unit/TestTracker/*.t"
+    "TESTS" => "t/integration/*.t t/unit/TestTracker/*.t"
   }
 );
 
