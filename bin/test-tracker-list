@@ -13,7 +13,7 @@ my %config = TestTracker::Config::load();
 
 my %options = TestTracker::parse_args(
     'explain' => 'explain|e',
-    'all'     => 'all',
+    'all'     => 'all|a',
 );
 
 my @files = @ARGV;
