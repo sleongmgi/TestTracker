@@ -30,27 +30,32 @@ sub git_base_dir {
 }
 
 sub changed_files_from_git {
-    my @git_log_args = @_;
+    my @git_args = @_;
+
+    my @cmds = (
+        q(git diff --name-only --staged), # changes to be committed
+        q(git diff --name-only),          # changes not staged for commit
+    );
+
+    if (@git_args) {
+        # e.g. changes since origin/master
+        push @cmds, sprintf(q(git diff --name-only "%s"), join('" "', @git_args));
+    }
+
+    my @files = map { capture($_) } @cmds;
+
+    my @untracked_files = map { /\?\? (.*)/ } capture(q(git status -s));
+    push @files, @untracked_files;
+
+    chomp @files;
 
     my %config = TestTracker::Config::load();
-
-    my $git_log_cmd = sprintf(q(git log --pretty="format:" --name-only "%s"), join('" "', @git_log_args));
-    my @commited_changed_files = capture($git_log_cmd);
-    chomp @commited_changed_files;
-
-    # TODO this does not account for renames, e.g. "R  foo -> bar"
-    my @working_changed_files = capture(q(git status --porcelain | awk '{print $2}'));
-    chomp @working_changed_files;
-
-    my $git_base_dir = git_base_dir();
-
-    my @changed_files =
-        grep { -e $_ }
+    @files =
+        uniq grep { -e $_ }
         grep { /$config{test_regex}|$config{module_regex}/ }
-        grep { $_ !~ /^$/ }
-        @commited_changed_files, @working_changed_files;
+        @files;
 
-    return @changed_files;
+    return @files;
 }
 
 sub _durations_for_tests {
