@@ -1,3 +1,9 @@
+libtesttracker-perl (0.019-1) lucid; urgency=low
+
+  * Fix: Properly detect changed files from within a subdirectory.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Mon, 04 Mar 2013 11:07:32 -0600
+
 libtesttracker-perl (0.018-1) lucid; urgency=low
 
   * Add -a alias for --all on the list command.
