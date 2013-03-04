@@ -89,5 +89,13 @@ my $found_cu = grep { $_ =~ /^$tu_filename$/ } @found_cu_capture;
 ok($found_cu, "found committed, untracked test file: '$tu_filename'")
     or diag(join("\n", @found_cu_capture));
 
+my $subdir = 'subdir';
+mkdir $subdir;
+chdir $subdir;
+my @found_subdir_capture = TestTracker::changed_files_from_git($git_arg);
+my $found_subdir = scalar @found_subdir_capture;
+ok($found_subdir, "found changes from within a subdir")
+    or diag(join("\n", @found_subdir_capture));
+
 chdir $orig_cwd;
 done_testing();
