@@ -51,7 +51,7 @@ sub changed_files_from_git {
 
     my %config = TestTracker::Config::load();
     @files =
-        uniq grep { -e $_ }
+        uniq grep { -e (git2rel($_))[0] }
         grep { /$config{test_regex}|$config{module_regex}/ }
         @files;
 
@@ -208,6 +208,25 @@ sub abs2git {
     }
 
     return map { _abs2git($_) } @abs_paths;
+}
+
+sub _git2rel {
+    my $git_path = shift;
+
+    my $abs_path = _git2abs($git_path);
+    my $rel_path = File::Spec->abs2rel($abs_path);
+
+    return $rel_path;
+}
+
+sub git2rel {
+    my @git_paths = @_;
+
+    unless (@git_paths) {
+        croak 'git2rel: one or more arguments required';
+    }
+
+    return map { _git2rel($_) } @git_paths;
 }
 
 sub _git2abs {
