@@ -51,7 +51,7 @@ sub changed_files_from_git {
 
     my %config = TestTracker::Config::load();
     @files =
-        uniq grep { -e $_ }
+        uniq grep { -e (git2rel($_))[0] }
         grep { /$config{test_regex}|$config{module_regex}/ }
         @files;
 
