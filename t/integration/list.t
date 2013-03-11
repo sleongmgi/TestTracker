@@ -122,5 +122,34 @@ run_ok(['git', 'tag', '-a', '-m', '', 'start'], 'tagged repo as "start"');
     ok(!$found_previous_test, 'did not find previous test') or diag @list;
 }
 
+{ # detect same tests after module rename
+    run_ok(['git', 'reset', '--hard', 'start']);
+    run_ok(['git', 'clean', '-xdf']);
+
+    my $test_filename = $test_filenames[0];
+
+    my @list_a = capture('test-tracker', 'list', '--git');
+    my @tests_a = map { (/^\s+\d+\s+(.*)/)[0] } @list_a;
+    my $found_test_a = grep { /^$test_filename$/ } @tests_a;
+    ok(!$found_test_a, 'did not find test before module changed/created');
+
+    my $module_filename = $test_db{$test_filename}->[0];
+    run_ok(['touch', $module_filename]);
+    run_ok(['git', 'add', $module_filename]);
+    run_ok(['git', 'commit', '-m ""', $module_filename]);
+
+    my @list_before = capture('test-tracker', 'list', '--git');
+    my @tests_before = map { (/^\s+\d+\s+(.*)/)[0] } @list_before;
+    my $found_test_before = grep { /^$test_filename$/ } @tests_before;
+    ok($found_test_before, 'found test before rename of module');
+
+    run_ok(['git', 'mv', $module_filename, 'untracked.pm']);
+
+    my @list_after = capture('test-tracker', 'list', '--git');
+    my @tests_after = map { (/^\s+\d+\s+(.*)/)[0] } @list_after;
+    my $found_test_after = grep { /^$test_filename$/ } @tests_after;
+    ok($found_test_after, 'found test after rename of module');
+}
+
 chdir $orig_cwd;
 done_testing();
