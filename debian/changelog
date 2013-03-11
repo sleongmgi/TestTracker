@@ -1,3 +1,9 @@
+libtesttracker-perl (0.020-1) lucid; urgency=low
+
+  * Report "old" tests when a module is renamed.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Sun, 10 Mar 2013 23:13:35 -0500
+
 libtesttracker-perl (0.019-1) lucid; urgency=low
 
   * Fix: Properly detect changed files from within a subdirectory.
