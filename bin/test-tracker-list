@@ -91,5 +91,7 @@ __END__
        --git [<since>..<until>]             determine test(s) to run from Git changes
        --help                               brief help message
        --man                                full documentation
+       -e, --explain                        explain what changes prompted test
+       -a, --all                            list all tests
 
 =cut
