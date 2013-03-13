@@ -1,3 +1,10 @@
+libtesttracker-perl (0.021-1) lucid; urgency=low
+
+  * Add --all and --explain to help for `test-tracker list`.
+  * Delay loading config so you can view --help from outside a Git repo.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Tue, 12 Mar 2013 21:50:23 -0500
+
 libtesttracker-perl (0.020-1) lucid; urgency=low
 
   * Report "old" tests when a module is renamed.
