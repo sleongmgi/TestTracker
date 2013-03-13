@@ -1,3 +1,10 @@
+libtesttracker-perl (0.022-1) lucid; urgency=low
+
+  * Fix: No longer create a log directory when running in interactive
+    submission mode.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Wed, 13 Mar 2013 12:30:54 -0500
+
 libtesttracker-perl (0.021-1) lucid; urgency=low
 
   * Add --all and --explain to help for `test-tracker list`.
