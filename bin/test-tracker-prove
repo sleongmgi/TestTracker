@@ -41,7 +41,7 @@ if ($o{jobs}) {
     unshift @ARGV, '--jobs', $o{jobs};
 }
 
-if ($o{'lsf-interactive'} || $o{'lsf-tail'}) {
+if ($o{'lsf-redirect'} || $o{'lsf-tail'}) {
     setup_log_directory();
 }
 
