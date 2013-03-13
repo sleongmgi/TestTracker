@@ -12,8 +12,6 @@ use Pod::Usage;
 use List::Util qw(max sum);
 use List::MoreUtils qw(uniq);
 
-my %config = TestTracker::Config::load();
-
 my %o = TestTracker::parse_args(
     pass_through      => 1,
 #   'option'          => 'arg_schema',
@@ -86,6 +84,7 @@ if ($o{'git'}) {
 exec 'prove', @ARGV;
 
 sub setup_log_directory {
+    my %config = TestTracker::Config::load();
     my $workspace = $config{lsf_log_dir};
     my $username = getpwuid($>);
     my $uuid_generator = new Data::UUID;

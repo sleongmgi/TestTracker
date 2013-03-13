@@ -9,8 +9,6 @@ use Pod::Usage;
 use TestTracker::Config;
 use TestTracker;
 
-my %config = TestTracker::Config::load();
-
 my %options = TestTracker::parse_args(
     'explain' => 'explain|e',
     'all'     => 'all|a',
@@ -45,6 +43,8 @@ unless (@git_files) {
     printf STDERR ("No files provided.\n");
     exit;
 }
+
+my %config = TestTracker::Config::load();
 
 my @tests = TestTracker::tests_for_git_files(@git_files);
 push @tests, grep { /$config{test_regex}/ } @git_files;
