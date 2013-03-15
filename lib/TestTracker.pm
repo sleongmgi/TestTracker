@@ -347,4 +347,17 @@ sub git_sz_is_untracked {
     return ($x eq '?' && $y eq '?');
 }
 
+sub get_test_id {
+    my ($dbh, $db_prefix, $test_name) = @_;
+    unless ($test_name) {
+        die 'test_name should always be specified.';
+    }
+    my $sql = qq{SELECT id FROM ${db_prefix}test WHERE name = ?};
+    my $test_id = ($dbh->selectrow_array($sql, {}, $test_name))[0];
+    unless ($test_id) {
+        croak "failed to get ID for test: $test_name";
+    }
+    return $test_id;
+}
+
 1;
