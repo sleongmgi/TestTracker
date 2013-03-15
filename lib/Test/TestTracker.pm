@@ -41,7 +41,7 @@ sub create_a_repo {
     run_ok(['touch', 'README.md']);
     run_ok(['git', 'add', 'README.md']);
     run_ok(['git', 'commit', '-m ""', 'README.md']);
-    run_ok(['git', 'push']);
+    run_ok(['git', 'push', '-u', 'origin', 'master']);
     chdir $orig_dir;
 
     return $work_dir;
