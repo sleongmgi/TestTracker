@@ -1,3 +1,9 @@
+libtesttracker-perl (0.027-1) lucid; urgency=low
+
+  * Fix typo that caused `test-tracker prove` to crash.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Fri, 15 Mar 2013 13:46:50 -0500
+
 libtesttracker-perl (0.026-1) lucid; urgency=low
 
   * Prune deleted tests when updating database.
