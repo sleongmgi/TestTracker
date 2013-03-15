@@ -347,4 +347,27 @@ sub git_sz_is_untracked {
     return ($x eq '?' && $y eq '?');
 }
 
+sub get_test_id {
+    my ($dbh, $db_prefix, $test_name) = @_;
+    unless ($test_name) {
+        die 'test_name should always be specified.';
+    }
+    my $sql = qq{SELECT id FROM ${db_prefix}test WHERE name = ?};
+    my $test_id = ($dbh->selectrow_array($sql, {}, $test_name))[0];
+    unless ($test_id) {
+        croak "failed to get ID for test: $test_name";
+    }
+    return $test_id;
+}
+
+sub delete_test_by_id {
+    my ($dbh, $db_prefix, $test_id) = @_;
+
+    my $delete_test_sth = $dbh->prepare(qq{DELETE FROM ${db_prefix}test WHERE test_id = ?});
+    $delete_test_sth->execute($test_id);
+
+    my $delete_model_test_sth = $dbh->prepare(qq{DELETE FROM ${db_prefix}module_test WHERE test_id = ?});
+    $delete_model_test_sth->execute($test_id);
+}
+
 1;
