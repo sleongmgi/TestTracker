@@ -1,3 +1,9 @@
+libtesttracker-perl (0.024-1) lucid; urgency=low
+
+  * Upstream fix for test failure during build of 0.023-1.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Thu, 14 Mar 2013 22:49:35 -0500
+
 libtesttracker-perl (0.023-1) lucid; urgency=low
 
   * Code cleanup; no new features.
