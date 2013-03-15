@@ -20,22 +20,31 @@ use Carp qw(croak);
 use Cwd qw(cwd);
 use Test::More;
 use Test::System import => [qw(run_ok)];
+use File::Temp qw();
 
 sub db_filename { '.test-tracker.db' }
 sub conf_filename { '.test-tracker.conf' }
 
 sub create_a_repo {
-    my $dir = cwd();
+    my $base_dir = shift;
+    my $bare_dir = File::Spec->join($base_dir, 'repo.git');
+    my $work_dir = File::Spec->join($base_dir, 'work');
+
     my $tb = __PACKAGE__->builder();
-    $tb->ok(-d $dir, "verified repo's directory exists");
-    run_ok(['git', 'init', $dir], 'initialized repo');
+    $tb->ok(-d $base_dir, "verified base directory exists");
+
+    run_ok(['git', 'init', '--bare', $bare_dir], 'initialized a bare repo');
+    run_ok(['git', 'clone', "file://$bare_dir", $work_dir]);
+
+    my $orig_dir = cwd();
+    chdir $work_dir;
     run_ok(['touch', 'README.md']);
     run_ok(['git', 'add', 'README.md']);
     run_ok(['git', 'commit', '-m ""', 'README.md']);
-    run_ok(['git', 'remote', 'add', 'origin', "file://$dir"], 'added "fake" remote');
-    run_ok(['git fetch origin 2>&1'], 'fetched "fake" remote');
-    run_ok(['git', 'branch', '--set-upstream', 'master', 'origin/master'], 'setup branch to track "fake" remote');
-    $tb->ok(1, 'prepared a repo');
+    run_ok(['git', 'push']);
+    chdir $orig_dir;
+
+    return $work_dir;
 }
 
 sub create_a_config {

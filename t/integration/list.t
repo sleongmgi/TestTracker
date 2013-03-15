@@ -39,10 +39,9 @@ chomp $tt_path;
 is($tt_path, File::Spec->join($bin_dir, 'test-tracker'),
     "found correct test-tracker bin");
 
-my $git_dir = File::Temp->newdir(TMPDIR => 1);
+my $test_dir = File::Temp->newdir(TMPDIR => 1);
+my $git_dir = create_a_repo($test_dir);
 chdir $git_dir;
-
-create_a_repo($git_dir);
 
 my $db_filename = db_filename();
 my $conf_filename = conf_filename();
