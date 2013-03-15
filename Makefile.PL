@@ -11,9 +11,7 @@ use ExtUtils::MakeMaker 6.30;
 my %WriteMakefileArgs = (
   "ABSTRACT" => "Track Perl module and test relationships so you can guess what are the best tests to run.",
   "AUTHOR" => "dmorton and nnutter",
-  "BUILD_REQUIRES" => {
-    "File::Temp" => 0
-  },
+  "BUILD_REQUIRES" => {},
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30"
   },
@@ -38,6 +36,7 @@ my %WriteMakefileArgs = (
     "File::Basename" => 0,
     "File::Path" => 0,
     "File::Spec" => 0,
+    "File::Temp" => 0,
     "Getopt::Long" => 0,
     "IO::File" => 0,
     "IPC::Open3" => 0,
@@ -55,7 +54,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.022",
+  "VERSION" => "0.023",
   "test" => {
     "TESTS" => "t/integration/*.t t/unit/TestTracker/*.t"
   }
