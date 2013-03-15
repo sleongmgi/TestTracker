@@ -1,3 +1,9 @@
+libtesttracker-perl (0.025-1) lucid; urgency=low
+
+  * Another upstream fix to support older versions of `git`.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Fri, 15 Mar 2013 01:18:11 -0500
+
 libtesttracker-perl (0.024-1) lucid; urgency=low
 
   * Upstream fix for test failure during build of 0.023-1.
