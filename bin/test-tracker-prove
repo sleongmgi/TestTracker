@@ -58,6 +58,9 @@ if ($o{'lsf-redirect'}) {
 }
 
 if ($o{'track'}) {
+    print STDERR "Pruning TestTracker database...\n";
+    prune_deleted_tests();
+
     unshift @ARGV, '--exec', 'test-tracker-exec-tracker';
 }
 
@@ -98,6 +101,26 @@ sub setup_log_directory {
     die "couldn't create $log_directory" unless -d $log_directory;
 
     $ENV{TESTTRACKER_LOG_DIR} = $log_directory;
+}
+
+sub prune_deleted_tests {
+    my @tests = TestTracker::all_tracked_tests();
+
+    my %config = TestTracker::Config::load();
+    my $dbh = TestTracker::db_connection();
+    my $db_prefix = $config{db_prefix};
+
+    for my $test (@tests) {
+        my ($rel_test) = TestTracker::git2rel($test);
+        next if -e $rel_test;
+
+        print STDERR "\t$rel_test\n";
+        my $test_id = TestTracker::get_test_id($dbh, $db_prefix, $test);
+        TestTracker::delete_test_by_id($dbh, $db_prefix, $test_it);
+    }
+
+    $dbh->commit();
+    $dbh->disconnect();
 }
 
 __END__
