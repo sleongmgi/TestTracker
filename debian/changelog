@@ -1,3 +1,9 @@
+libtesttracker-perl (0.023-1) lucid; urgency=low
+
+  * Code cleanup; no new features.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Thu, 14 Mar 2013 22:06:20 -0500
+
 libtesttracker-perl (0.022-1) lucid; urgency=low
 
   * Fix: No longer create a log directory when running in interactive
