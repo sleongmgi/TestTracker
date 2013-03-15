@@ -327,13 +327,16 @@ sub format_duration {
 }
 
 sub git_status_z {
-    my @lines = capture('git', 'status', '-z');
+    my @lines = capture('git', 'status', '-zs');
     return @lines;
 }
 
 sub parse_git_status_z_line {
     my $line = shift;
     my ($x, $y, $paths) = $line =~ /(.)(.) (.*)/;
+    unless ($x) {
+        print STDERR "failed to parse status line: $line\n";
+    }
     my ($now, $was) = split(/\0/, $paths);
     return ($x, $y, $now, $was);
 }
