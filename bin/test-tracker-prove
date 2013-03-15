@@ -116,7 +116,7 @@ sub prune_deleted_tests {
 
         print STDERR "\t$rel_test\n";
         my $test_id = TestTracker::get_test_id($dbh, $db_prefix, $test);
-        TestTracker::delete_test_by_id($dbh, $db_prefix, $test_it);
+        TestTracker::delete_test_by_id($dbh, $db_prefix, $test_id);
     }
 
     $dbh->commit();
