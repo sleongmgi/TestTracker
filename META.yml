@@ -2,8 +2,7 @@
 abstract: 'Track Perl module and test relationships so you can guess what are the best tests to run.'
 author:
   - 'dmorton and nnutter'
-build_requires:
-  File::Temp: 0
+build_requires: {}
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
@@ -21,6 +20,7 @@ requires:
   File::Basename: 0
   File::Path: 0
   File::Spec: 0
+  File::Temp: 0
   Getopt::Long: 0
   IO::File: 0
   IPC::Open3: 0
@@ -37,4 +37,4 @@ requires:
   base: 0
   strict: 0
   warnings: 0
-version: 0.022
+version: 0.023

@@ -32,21 +32,18 @@ sub git_base_dir {
 sub changed_files_from_git {
     my @git_args = @_;
 
-    my @cmds = (
-        q(git diff --name-only --staged), # changes to be committed
-        q(git diff --name-only),          # changes not staged for commit
-    );
-
+    my @cmd = qw(git diff --name-only);
     if (@git_args) {
-        # e.g. changes since origin/master
-        push @cmds, sprintf(q(git diff --name-only "%s"), join('" "', @git_args));
+        push @cmd, @git_args;
     }
 
-    my @files = map { capture($_) } @cmds;
+    my @files = capture(@cmd);
 
-    my @untracked_files = map { /\?\? (.*)/ } capture(q(git status -s));
+    my @git_sz = git_status_z();
+    my @untracked_lines = grep { git_sz_is_untracked($_) } @git_sz;
+    my @untracked_files = map { (parse_git_status_z_line($_))[2] } @untracked_lines;
+
     push @files, @untracked_files;
-
     chomp @files;
 
     my %config = TestTracker::Config::load();
@@ -314,12 +311,7 @@ sub parse_args {
 }
 
 sub default_git_arg {
-    my $upstream = capture('git rev-parse --abbrev-ref --symbolic-full-name @{u}');
-    chomp $upstream;
-    unless ($upstream) {
-        die 'Failed to infer default_git_arg!';
-    }
-    return "$upstream..";
+    return '@{u}';
 }
 
 sub format_duration {
@@ -332,6 +324,24 @@ sub format_duration {
     my $seconds = $remainder - $minutes*60;
 
     return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+}
+
+sub git_status_z {
+    my @lines = capture('git', 'status', '-z');
+    return @lines;
+}
+
+sub parse_git_status_z_line {
+    my $line = shift;
+    my ($x, $y, $paths) = $line =~ /(.)(.) (.*)/;
+    my ($now, $was) = split(/\0/, $paths);
+    return ($x, $y, $now, $was);
+}
+
+sub git_sz_is_untracked {
+    my $line = shift;
+    my ($x, $y) = parse_git_status_z_line($line);
+    return ($x eq '?' && $y eq '?');
 }
 
 1;
