@@ -311,12 +311,7 @@ sub parse_args {
 }
 
 sub default_git_arg {
-    my $upstream = capture('git rev-parse --abbrev-ref --symbolic-full-name @{u}');
-    chomp $upstream;
-    unless ($upstream) {
-        die 'Failed to infer default_git_arg!';
-    }
-    return $upstream;
+    return '@{u}';
 }
 
 sub format_duration {
