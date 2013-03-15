@@ -1,3 +1,9 @@
+libtesttracker-perl (0.026-1) lucid; urgency=low
+
+  * Prune deleted tests when updating database.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Fri, 15 Mar 2013 13:01:58 -0500
+
 libtesttracker-perl (0.025-1) lucid; urgency=low
 
   * Another upstream fix to support older versions of `git`.
