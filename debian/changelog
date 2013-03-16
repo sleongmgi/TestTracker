@@ -1,3 +1,10 @@
+libtesttracker-perl (0.028-1) lucid; urgency=low
+
+  * Add an `--iterate` option to `test-tracker prove` that will iterate over
+    every commit provided by `--git` option and run `test-tracker prove`.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Sat, 16 Mar 2013 00:17:31 -0500
+
 libtesttracker-perl (0.027-1) lucid; urgency=low
 
   * Fix typo that caused `test-tracker prove` to crash.
