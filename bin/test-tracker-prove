@@ -11,16 +11,18 @@ use TestTracker;
 use Pod::Usage;
 use List::Util qw(max sum);
 use List::MoreUtils qw(uniq);
+use IPC::System::Simple qw(capture system);
 
 my %o = TestTracker::parse_args(
     pass_through      => 1,
 #   'option'          => 'arg_schema',
-    'junit'           => 'junit',
-    'track'           => 'track',
+    'junit'           => 'junit|j',
+    'track'           => 'track|t',
     'lsf-redirect'    => 'lsf-redirect',
     'lsf-tail'        => 'lsf-tail',
-    'lsf-interactive' => 'lsf',
-    'jobs'            => 'jobs=i',
+    'lsf-interactive' => 'lsf|l',
+    'jobs'            => 'jobs|j=i',
+    'iterate'         => 'iterate|i'
 );
 
 my $lsf = ($o{'lsf-interactive' || $o{'lsf-redirect'}} || $o{'lsf-tail'});
@@ -64,27 +66,30 @@ if ($o{'track'}) {
     unshift @ARGV, '--exec', 'test-tracker-exec-tracker';
 }
 
-if ($o{'git'}) {
-    my @tests = TestTracker::tests_for_git_changes($o{'git'});
-    my $msg_suffix = sprintf("to run based on Git changes (%s)", $o{'git'});
-    unless (@tests) {
-        printf STDERR "No tests %s.\n", $msg_suffix;
-        exit 1;
-    }
-    my @test_durations = map { $_->[1] } TestTracker::durations_for_tests(TestTracker::rel2git(@tests));
-    my $total_duration = sum(@test_durations);
-    my $estimated_duration = $total_duration;
-    if ($o{jobs}) {
-        my $t = $estimated_duration / $o{jobs};
-        $estimated_duration = max($t, max(@test_durations));
-    }
-    printf STDERR "Found %d tests %s which would take an estimated %d seconds (%s) to run.\n\n",
-        scalar(@tests), $msg_suffix, $estimated_duration, TestTracker::format_duration($estimated_duration);
-    push @ARGV, @tests;
+if ($o{iterate} && !$o{git}) {
+    printf STDERR "`--iterate` may only be used with `--git`\n";
+    exit 128;
 }
 
+if ($o{iterate}) {
+    my $rev_arg = $o{git};
+    iterate($rev_arg, @ARGV);
+} else {
+    if ($o{'git'}) {
+        my @tests = TestTracker::tests_for_git_changes($o{'git'});
+        my $msg_suffix = sprintf("to run based on Git changes (%s)", $o{'git'});
+        unless (@tests) {
+            printf STDERR "No tests %s.\n", $msg_suffix;
+            exit 1;
+        }
+        my ($total_duration, $estimated_duration) = duration_stats_for_tests($o{jobs}, @tests);
+        printf STDERR "Found %d tests %s which would take an estimated %d seconds (%s) to run.\n\n",
+            scalar(@tests), $msg_suffix, $estimated_duration, TestTracker::format_duration($estimated_duration);
+        push @ARGV, @tests;
+    }
 
-exec 'prove', @ARGV;
+    exec 'prove', @ARGV;
+}
 
 sub setup_log_directory {
     my %config = TestTracker::Config::load();
@@ -121,6 +126,99 @@ sub prune_deleted_tests {
 
     $dbh->commit();
     $dbh->disconnect();
+}
+
+sub git_stash {
+    my @prev_stash = capture('git stash list');
+    system('git stash save --include-untracked --quiet');
+    my @stash = capture('git stash list');
+    return (@stash > @prev_stash);
+}
+
+sub print_revision_banner {
+    my $rev = shift;
+    print '*' x 72, "\n";
+    print "Testing Revision: $rev\n";
+    print 'v' x 72, "\n";
+}
+
+sub revision_has_coverage {
+    my $rev = shift;
+    my $rev_list = "$rev^..$rev";
+    my @tests = capture('test-tracker', 'list', '--git', $rev_list);
+    return scalar(@tests);
+}
+
+sub duration_stats_for_tests {
+    my $jobs = shift;
+    my @tests = @_;
+    my @test_durations = map { $_->[1] } TestTracker::durations_for_tests(TestTracker::rel2git(@tests));
+    my $total_duration = sum(@test_durations);
+    my $estimated_duration = $total_duration;
+    if ($jobs) {
+        my $t = $estimated_duration / $jobs;
+        $estimated_duration = max($t, max(@test_durations));
+    }
+    return ($total_duration, $estimated_duration);
+}
+
+sub iterate {
+    my $rev_arg = shift;
+    my @argv = @_;
+
+    my $orig_rev = symbolic_head();
+    my @revs = short_revisions($rev_arg);
+    my $stashed = git_stash();
+
+    # catch any exception so we can restore state of repo before exiting
+    eval {
+        for my $rev (@revs) {
+            print_revision_banner($rev);
+            system('git', 'checkout', '--quiet', $rev);
+            unless (revision_has_coverage($rev)) {
+                print "no coverage, skipping.", "\n" x 3;
+                next;
+            }
+            my $prove_arg = "$rev^..$rev";
+            system('test-tracker', 'prove', '--git', $prove_arg, @argv);
+            print "\n" x 2;
+        }
+    };
+    my $error = $@;
+
+    system('git', 'checkout', '--quiet', $orig_rev);
+    if ($stashed) {
+        system('git', 'stash', 'apply', '--quiet');
+    }
+
+    if ($error) {
+        print STDERR $error;
+        exit 128;
+    }
+}
+
+sub symbolic_head {
+    my $orig_rev = capture('git rev-parse --symbolic --abbrev-ref HEAD');
+    chomp $orig_rev;
+    return $orig_rev;
+}
+
+sub short_revisions {
+    my $rev_arg = shift;
+
+    # rev-list behavior is like log not like diff so add `..` if we don't think
+    # user supplied the git argument.
+    if ($rev_arg eq TestTracker::default_git_arg()
+        && index($rev_arg, '..') == -1
+    ) {
+        $rev_arg .= '..';
+    }
+
+    my @revs = capture('git', 'rev-list', '--reverse', $rev_arg);
+    chomp @revs;
+    my @short_revs = map { capture('git', 'rev-parse', '--short', $_) } @revs;
+    chomp @short_revs;
+    return @short_revs;
 }
 
 __END__
