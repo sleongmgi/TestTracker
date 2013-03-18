@@ -363,11 +363,11 @@ sub get_test_id {
 sub delete_test_by_id {
     my ($dbh, $db_prefix, $test_id) = @_;
 
-    my $delete_test_sth = $dbh->prepare(qq{DELETE FROM ${db_prefix}test WHERE test_id = ?});
-    $delete_test_sth->execute($test_id);
-
     my $delete_model_test_sth = $dbh->prepare(qq{DELETE FROM ${db_prefix}module_test WHERE test_id = ?});
     $delete_model_test_sth->execute($test_id);
+
+    my $delete_test_sth = $dbh->prepare(qq{DELETE FROM ${db_prefix}test WHERE id = ?});
+    $delete_test_sth->execute($test_id);
 }
 
 1;
