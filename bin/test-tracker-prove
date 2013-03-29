@@ -117,7 +117,7 @@ sub prune_deleted_tests {
 
     for my $test (@tests) {
         my ($rel_test) = TestTracker::git2rel($test);
-        next if -e $rel_test;
+        next if -f $rel_test;
 
         print STDERR "\t$rel_test\n";
         my $test_id = TestTracker::get_test_id($dbh, $db_prefix, $test);
