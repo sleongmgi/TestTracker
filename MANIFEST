@@ -14,6 +14,7 @@ bin/test-tracker-list
 bin/test-tracker-prove
 dist.ini
 env.sh
+lib/Test/Builder/TesterHack.pm
 lib/Test/System.pm
 lib/Test/TestTracker.pm
 lib/TestTracker.pm
