@@ -6,6 +6,7 @@ use warnings;
 use Cwd qw(cwd);
 use TestTracker::Config;
 use TestTracker;
+use Test::Builder::TesterHack;
 
 my %config = TestTracker::Config::load();
 

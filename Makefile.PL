@@ -33,6 +33,7 @@ my %WriteMakefileArgs = (
     "Cwd" => 0,
     "DBI" => 0,
     "Data::UUID" => 0,
+    "Exporter" => 0,
     "File::Basename" => 0,
     "File::Path" => 0,
     "File::Spec" => 0,
@@ -46,6 +47,8 @@ my %WriteMakefileArgs = (
     "POSIX" => 0,
     "Pod::Usage" => 0,
     "Symbol" => 0,
+    "Term::ANSIColor" => 0,
+    "Test::Builder" => 0,
     "Test::Builder::Module" => 0,
     "Test::More" => 0,
     "YAML" => 0,
@@ -54,7 +57,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.030",
+  "VERSION" => "0.031",
   "test" => {
     "TESTS" => "t/integration/*.t t/unit/TestTracker/*.t"
   }
