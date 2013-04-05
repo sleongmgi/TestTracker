@@ -287,7 +287,7 @@ sub parse_args {
         push @custom_options, $option_spec{$option_name} => \$options{$option_name};
     }
 
-    my $pt_parser = new Getopt::Long::Parser config => ['pass_through'];
+    my $pt_parser = new Getopt::Long::Parser config => ['pass_through', 'no_ignore_case'];
     $pt_parser->getoptions(%common_options);
     pod2usage(1) if $help;
     pod2usage(-exitstatus => 0, -verbose => 2) if $man;
@@ -303,7 +303,7 @@ sub parse_args {
 
     my $os_parser = new Getopt::Long::Parser;
     if ($pass_through) {
-        $os_parser->configure('pass_through');
+        $os_parser->configure('pass_through', 'no_ignore_case');
     }
     $os_parser->getoptions(@custom_options) or pod2usage(2);
 
