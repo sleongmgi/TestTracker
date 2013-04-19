@@ -1,3 +1,10 @@
+libtesttracker-perl (0.032-1) lucid; urgency=low
+
+  * Removed hacked Test::Builder::Tester.  A bleeding edge Test::More should
+    be installed separately to avoid that problem.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Fri, 19 Apr 2013 15:03:34 -0500
+
 libtesttracker-perl (0.031-1) lucid; urgency=low
 
   * Add hack to make Test::Builder::Tester::test_fail within a `do 'foo.t'`.
