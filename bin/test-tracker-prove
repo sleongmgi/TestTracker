@@ -166,35 +166,22 @@ sub iterate {
     my $rev_arg = shift;
     my @argv = @_;
 
-    my $orig_rev = symbolic_head();
-    my @revs = short_revisions($rev_arg);
     my $stashed = git_stash();
-
-    # catch any exception so we can restore state of repo before exiting
-    eval {
-        for my $rev (@revs) {
-            print_revision_banner($rev);
-            system('git', 'checkout', '--quiet', $rev);
-            unless (revision_has_coverage($rev)) {
-                print "no coverage, skipping.", "\n" x 3;
-                next;
-            }
-            my $prove_arg = "$rev^..$rev";
-            system('test-tracker', 'prove', '--git', $prove_arg, @argv);
-            print "\n" x 2;
-        }
-    };
-    my $error = $@;
-
-    system('git', 'checkout', '--quiet', $orig_rev);
     if ($stashed) {
-        system('git', 'stash', 'apply', '--quiet');
+        print STDERR (
+            "Stashing your working changes.  If you wish to test them as well you\n",
+            "will need to:\n",
+            "\tgit stash pop\n",
+            "\ttest-tracker prove --git HEAD\n",
+            "Press Enter/Return to continute...\n",
+        );
+        <STDIN>;
+        print STDERR "Continuing...\n";
     }
 
-    if ($error) {
-        print STDERR $error;
-        exit 128;
-    }
+    my @test_cmd = ('test-tracker', 'prove', '--git', 'HEAD^..HEAD', @argv);
+    my $test_cmd = join(' ', @test_cmd);
+    system('git', 'rebase', '--interactive', '--exec', $test_cmd, $rev_arg);
 }
 
 sub symbolic_head {
