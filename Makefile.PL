@@ -43,6 +43,7 @@ my %WriteMakefileArgs = (
     "IPC::System::Simple" => 0,
     "List::MoreUtils" => 0,
     "List::Util" => 0,
+    "Memoize" => 0,
     "POSIX" => 0,
     "Pod::Usage" => 0,
     "Symbol" => 0,
@@ -54,7 +55,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.032",
+  "VERSION" => "0.033",
   "test" => {
     "TESTS" => "t/integration/*.t t/unit/TestTracker/*.t"
   }

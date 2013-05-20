@@ -12,6 +12,8 @@ use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use TestTracker::Config;
 use autodie qw(:system);
+use Memoize "memoize";
+use Cwd "getcwd";
 
 sub db_connection {
     my %config = TestTracker::Config::load();
@@ -21,12 +23,20 @@ sub db_connection {
     return $dbh;
 }
 
-sub git_base_dir {
+sub _git_base_dir {
+    my ($cwd) = @_; # used for memoization
+
     my $git_dir = capture(qq(git rev-parse --git-dir));
     chomp $git_dir;
     my $abs_git_dir = File::Spec->rel2abs($git_dir);
     my $git_base_dir = (File::Spec->splitpath($abs_git_dir))[1];
     return $git_base_dir;
+}
+memoize('_git_base_dir');
+
+sub git_base_dir {
+    my $cwd = getcwd();
+    return _git_base_dir($cwd);
 }
 
 sub changed_files_from_git {
@@ -246,6 +256,25 @@ sub git2abs {
     }
 
     return map { _git2abs($_) } @git_paths;
+}
+
+sub _git2rel {
+    my $git_path = shift;
+
+    my $abs_path = _git2abs($git_path);
+    my $rel_path = File::Spec->abs2rel($abs_path);
+
+    return $rel_path;
+}
+
+sub git2rel {
+    my @git_paths = @_;
+
+    unless (@git_paths) {
+        croak 'git2rel: one or more arguments required';
+    }
+
+    return map { _git2rel($_) } @git_paths;
 }
 
 sub tests_for_git_changes {
