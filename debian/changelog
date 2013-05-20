@@ -1,3 +1,9 @@
+libtesttracker-perl (0.033-1) lucid; urgency=low
+
+  * Memoize common git call to increase performance.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Mon, 20 May 2013 17:11:08 -0500
+
 libtesttracker-perl (0.032-1) lucid; urgency=low
 
   * Removed hacked Test::Builder::Tester.  A bleeding edge Test::More should
