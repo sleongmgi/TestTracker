@@ -91,6 +91,29 @@ if ($o{iterate}) {
     exec 'prove', @ARGV;
 }
 
+# Users want to see progress happening as fast as possible, which means running short tests first.
+# But running all the short tests first will mean less than optimal use of time overall, which users
+# won't appreciate.  This fn tries to order the tests to achieve a balance.
+sub sort_tests_for_optimal_user_experience {
+    my @durations_for_tests = @_;
+
+    my @dec_sorted_tests = map { $_->[0] } @durations_for_tests;
+
+    # simply alternate between fast and slow tests.
+    my $count = 1;
+    my @tests;
+    while (@dec_sorted_tests) {
+        if ($count % 2) {
+            push @tests, pop @dec_sorted_tests;
+        } else {
+            push @tests, shift @dec_sorted_tests;
+        }
+        $count++;
+    }
+
+    return TestTracker::git2rel(@tests);
+}
+
 sub setup_log_directory {
     my %config = TestTracker::Config::load();
     my $workspace = $config{lsf_log_dir};
@@ -166,35 +189,22 @@ sub iterate {
     my $rev_arg = shift;
     my @argv = @_;
 
-    my $orig_rev = symbolic_head();
-    my @revs = short_revisions($rev_arg);
     my $stashed = git_stash();
-
-    # catch any exception so we can restore state of repo before exiting
-    eval {
-        for my $rev (@revs) {
-            print_revision_banner($rev);
-            system('git', 'checkout', '--quiet', $rev);
-            unless (revision_has_coverage($rev)) {
-                print "no coverage, skipping.", "\n" x 3;
-                next;
-            }
-            my $prove_arg = "$rev^..$rev";
-            system('test-tracker', 'prove', '--git', $prove_arg, @argv);
-            print "\n" x 2;
-        }
-    };
-    my $error = $@;
-
-    system('git', 'checkout', '--quiet', $orig_rev);
     if ($stashed) {
-        system('git', 'stash', 'apply', '--quiet');
+        print STDERR (
+            "Stashing your working changes.  If you wish to test them as well you\n",
+            "will need to:\n",
+            "\tgit stash pop\n",
+            "\ttest-tracker prove --git HEAD\n",
+            "Press Enter/Return to continute...\n",
+        );
+        <STDIN>;
+        print STDERR "Continuing...\n";
     }
 
-    if ($error) {
-        print STDERR $error;
-        exit 128;
-    }
+    my @test_cmd = ('test-tracker', 'prove', '--git', 'HEAD^..HEAD', @argv);
+    my $test_cmd = join(' ', @test_cmd);
+    system('git', 'rebase', '--interactive', '--exec', $test_cmd, $rev_arg);
 }
 
 sub symbolic_head {

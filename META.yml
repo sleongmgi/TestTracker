@@ -27,6 +27,7 @@ requires:
   IPC::System::Simple: 0
   List::MoreUtils: 0
   List::Util: 0
+  Memoize: 0
   POSIX: 0
   Pod::Usage: 0
   Symbol: 0
@@ -37,4 +38,4 @@ requires:
   base: 0
   strict: 0
   warnings: 0
-version: 0.032
+version: 0.033
