@@ -204,6 +204,7 @@ sub iterate {
 
     my @test_cmd = ('test-tracker', 'prove', '--git', 'HEAD^..HEAD', @argv);
     my $test_cmd = join(' ', @test_cmd);
+    local $ENV{GIT_EDITOR} = 'true';
     system('git', 'rebase', '--interactive', '--exec', $test_cmd, $rev_arg);
 }
 
