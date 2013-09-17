@@ -1,3 +1,10 @@
+libtesttracker-perl (0.035-1) lucid; urgency=low
+
+  * Change LSF queue to apipe-ci.
+  * Bypass editor prompt when using --iterate option.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Tue, 17 Sep 2013 14:01:34 -0500
+
 libtesttracker-perl (0.034-1) lucid; urgency=low
 
   * Fix warnings about git2rel method being redefined.
