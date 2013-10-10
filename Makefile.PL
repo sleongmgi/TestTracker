@@ -57,7 +57,7 @@ my %WriteMakefileArgs = (
     "warnings" => 0
   },
   "TEST_REQUIRES" => {},
-  "VERSION" => "0.035",
+  "VERSION" => "0.036",
   "test" => {
     "TESTS" => "t/integration/*.t t/unit/TestTracker/*.t"
   }
