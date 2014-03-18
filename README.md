@@ -47,3 +47,35 @@ These notes are a work in progress and specific to my environment. PSEUDO CODE:
     # Push package to repo.
     cd ~/pkg
     tgi-dput libtesttracker-perl_$PKG_VERSION*.changes
+
+# SCHEMA
+
+For Postgres, assuming a `test_tracker_admin` owns the database and a `test_tracker` user for running TestTracker:
+
+    CREATE TABLE test_tracker.test (
+      id SERIAL,
+      name text,
+      duration integer,
+      PRIMARY KEY (id)
+    );
+    CREATE TABLE test_tracker.module (
+      id SERIAL,
+      name text,
+      PRIMARY KEY (id)
+    );
+    CREATE TABLE test_tracker.module_test (
+      module_id integer,
+      test_id integer,
+      FOREIGN KEY (module_id) REFERENCES test_tracker.module(id),
+      FOREIGN KEY (test_id) REFERENCES test_tracker.test(id)
+    );
+
+    CREATE INDEX idx_test_tracker_module_name ON test_tracker.module ("name");
+    CREATE INDEX idx_test_tracker_test_name ON test_tracker.test ("name");
+    CREATE INDEX idx_test_tracker_test_duration ON test_tracker.test ("duration");
+    CREATE INDEX idx_test_tracker_module_test_module_id ON test_tracker.module_test ("module_id");
+    CREATE INDEX idx_test_tracker_module_test_test_id ON test_tracker.module_test ("test_id");
+
+    GRANT USAGE ON SCHEMA test_tracker TO test_tracker;
+    GRANT USAGE ON ALL SEQUENCES IN SCHEMA test_tracker TO test_tracker;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA test_tracker TO test_tracker;
