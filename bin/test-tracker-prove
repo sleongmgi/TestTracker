@@ -88,7 +88,7 @@ if ($o{iterate}) {
         push @ARGV, @tests;
     }
 
-    exec 'prove', @ARGV;
+    exec prove(), @ARGV;
 }
 
 # Users want to see progress happening as fast as possible, which means running short tests first.
@@ -112,6 +112,11 @@ sub sort_tests_for_optimal_user_experience {
     }
 
     return TestTracker::git2rel(@tests);
+}
+
+sub prove {
+    my %config = TestTracker::Config::load();
+    return $config{prove} || 'prove';
 }
 
 sub setup_log_directory {
