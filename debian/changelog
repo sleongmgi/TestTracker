@@ -1,3 +1,9 @@
+libtesttracker-perl (0.037-1) lucid; urgency=low
+
+  * Allow prove executable to be specified by config.
+
+ -- Nathaniel Nutter <nnutter@genome.wustl.edu>  Fri, 02 May 2014 13:50:35 -0500
+
 libtesttracker-perl (0.036-1) lucid; urgency=low
 
   * Change default LSF queue back to short.
