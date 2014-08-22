@@ -50,6 +50,8 @@ sub get_module_names {
     my $git_base_dir = TestTracker::git_base_dir();
     my @inc_paths = values %INC;
     my @git_inc_paths = grep { /^${git_base_dir}/ } @inc_paths;
+    return unless @git_inc_paths;
+
     my @git_files = TestTracker::abs2git(@git_inc_paths);
     my @module_names = grep { /$config{module_regex}/ } @git_files;
     return @module_names;
