@@ -32,11 +32,7 @@ my $elapsed_time = -1;
     }
 }
 
-my $git_base_dir = TestTracker::git_base_dir();
-my @inc_paths = values %INC;
-my @git_inc_paths = grep { /^${git_base_dir}/ } @inc_paths;
-my @git_files = TestTracker::abs2git(@git_inc_paths);
-my @module_names = grep { /$config{module_regex}/ } @git_files;
+my @module_names = get_module_names(\%config);
 
 my $dbh = TestTracker::db_connection();
 upsert_test($dbh, $config{db_prefix}, $git_test_name, $elapsed_time);
@@ -47,6 +43,17 @@ my $test_id = TestTracker::get_test_id($dbh, $config{db_prefix}, $git_test_name)
 replace_bridge_entries($dbh, $config{db_prefix}, $test_id, @module_names);
 $dbh->commit();
 $dbh->disconnect();
+
+sub get_module_names {
+    my %config = %{(shift)};
+
+    my $git_base_dir = TestTracker::git_base_dir();
+    my @inc_paths = values %INC;
+    my @git_inc_paths = grep { /^${git_base_dir}/ } @inc_paths;
+    my @git_files = TestTracker::abs2git(@git_inc_paths);
+    my @module_names = grep { /$config{module_regex}/ } @git_files;
+    return @module_names;
+}
 
 sub upsert_test {
     my ($dbh, $db_prefix, $git_test_name, $duration) = @_;
