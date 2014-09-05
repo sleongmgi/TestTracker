@@ -50,11 +50,15 @@ sub get_module_names {
     my $git_base_dir = TestTracker::git_base_dir();
     my @inc_paths = values %INC;
     my @git_inc_paths = grep { /^${git_base_dir}/ } @inc_paths;
-    return unless @git_inc_paths;
 
-    my @git_files = TestTracker::abs2git(@git_inc_paths);
-    my @module_names = grep { /$config{module_regex}/ } @git_files;
-    return @module_names;
+    if (@git_inc_paths) {
+        my @git_files = TestTracker::abs2git(@git_inc_paths);
+        my @module_names = grep { /$config{module_regex}/ } @git_files;
+        return @module_names;
+    } else {
+        warn "No modules from the tracked repository were loaded";
+        return;
+    }
 }
 
 sub upsert_test {
@@ -81,16 +85,16 @@ sub replace_bridge_entries {
     my $delete_model_test_sth = $dbh->prepare(qq{DELETE FROM ${db_prefix}module_test WHERE test_id = ?});
     $delete_model_test_sth->execute($test_id);
 
-    for my $module_id (get_module_ids($dbh, $db_prefix, @module_names)) {
-        $dbh->do(qq{INSERT INTO ${db_prefix}module_test (module_id, test_id) values ('$module_id', '$test_id')});
+    if (@module_names) {
+        for my $module_id (get_module_ids($dbh, $db_prefix, @module_names)) {
+            $dbh->do(qq{INSERT INTO ${db_prefix}module_test (module_id, test_id) values ('$module_id', '$test_id')});
+        }
     }
 }
 
 sub get_module_ids {
     my ($dbh, $db_prefix, @module_names) = @_;
-    unless (@module_names) {
-        die "One or more Genome modules should always be loaded or we can't track it properly.";
-    }
+
     my $sql = sprintf(qq{SELECT id FROM ${db_prefix}module WHERE name IN (%s)}, join(', ', map { '?' } @module_names));
     return map { $_->[0] } @{$dbh->selectall_arrayref($sql, {}, @module_names)};
 }
