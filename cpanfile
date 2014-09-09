@@ -1,5 +1,6 @@
 requires 'DBI';
 requires 'IPC::System::Simple';
+requires 'List::MoreUtils';
 requires 'YAML';
 
 on 'test' => sub {
