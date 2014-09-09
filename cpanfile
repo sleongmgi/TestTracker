@@ -1,3 +1,11 @@
+requires 'DBI';
+requires 'IPC::System::Simple';
+requires 'YAML';
+
+on 'test' => sub {
+    requires 'DBD::SQLite';
+};
+
 on 'develop' => sub {
     requires 'Dist::Zilla';
     requires 'Dist::Zilla::Plugin::AutoPrereqs';
