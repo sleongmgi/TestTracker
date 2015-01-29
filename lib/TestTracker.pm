@@ -11,7 +11,6 @@ use IPC::System::Simple qw(capture);
 use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use TestTracker::Config;
-use autodie qw(:system);
 use Memoize "memoize";
 use Cwd "getcwd";
 
