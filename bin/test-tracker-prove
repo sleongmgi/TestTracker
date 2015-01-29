@@ -219,24 +219,6 @@ sub symbolic_head {
     return $orig_rev;
 }
 
-sub short_revisions {
-    my $rev_arg = shift;
-
-    # rev-list behavior is like log not like diff so add `..` if we don't think
-    # user supplied the git argument.
-    if ($rev_arg eq TestTracker::default_git_arg()
-        && index($rev_arg, '..') == -1
-    ) {
-        $rev_arg .= '..';
-    }
-
-    my @revs = capture('git', 'rev-list', '--reverse', $rev_arg);
-    chomp @revs;
-    my @short_revs = map { capture('git', 'rev-parse', '--short', $_) } @revs;
-    chomp @short_revs;
-    return @short_revs;
-}
-
 __END__
 
 =head1 NAME
