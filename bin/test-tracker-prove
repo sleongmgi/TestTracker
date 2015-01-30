@@ -82,23 +82,6 @@ sub prove {
     return $config{prove} || 'prove';
 }
 
-sub setup_log_directory {
-    my %config = TestTracker::Config::load();
-    my $workspace = $config{lsf_log_dir};
-    my $username = getpwuid($>);
-    my $uuid_generator = new Data::UUID;
-    my $uuid = $uuid_generator->create_str();
-
-    # Since we are doing a make_path
-    die "cannot find workspace at $workspace" unless -d $workspace;
-
-    my $log_directory = File::Spec->join($workspace, "test_logs", $username, $uuid);
-    make_path($log_directory);
-    die "couldn't create $log_directory" unless -d $log_directory;
-
-    $ENV{TESTTRACKER_LOG_DIR} = $log_directory;
-}
-
 sub prune_deleted_tests {
     my @tests = TestTracker::all_tracked_tests();
 
