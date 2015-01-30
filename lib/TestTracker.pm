@@ -342,11 +342,6 @@ sub format_duration {
     return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
 }
 
-sub git_status_z {
-    my @lines = capture('git', 'status', '-zs');
-    return @lines;
-}
-
 sub get_test_id {
     my ($dbh, $db_prefix, $test_name) = @_;
     unless ($test_name) {
