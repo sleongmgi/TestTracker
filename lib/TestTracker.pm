@@ -305,6 +305,7 @@ sub parse_args {
     # --git is an optional string argument so if it is passed as last option and the users also passes an argument (test or module path) then Getopt::Long may mistakenly identify that as the value to this option. So we check if it is a file and throw it back on @ARGV if so.
     if ($options{git} && -f $options{git}) {
         unshift @ARGV, $options{git};
+        $options{git} = '';
     }
 
     if (defined($options{git}) && $options{git} eq '') {
