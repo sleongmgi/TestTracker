@@ -58,7 +58,6 @@ sub create_a_config {
         db_password => 'password',
         db_prefix => '',
         db_user => 'user',
-        lsf_log_dir => '/tmp',
         module_regex => '\.pm$',
         test_regex => '\.t$',
     );
