@@ -18,14 +18,12 @@ my %o = TestTracker::parse_args(
 #   'option'          => 'arg_schema',
     'junit'           => 'junit|j',
     'track'           => 'track|t',
-    'lsf-redirect'    => 'lsf-redirect',
-    'lsf-tail'        => 'lsf-tail',
     'lsf-interactive' => 'lsf|l',
     'jobs'            => 'jobs|j=i',
     'iterate'         => 'iterate|i'
 );
 
-my $lsf = ($o{'lsf-interactive' || $o{'lsf-redirect'}} || $o{'lsf-tail'});
+my $lsf = $o{'lsf-interactive'};
 
 if ($o{'track'} && $lsf) {
     die '--track and --lsf are mutually exclusive options.';
@@ -43,20 +41,8 @@ if ($o{jobs}) {
     unshift @ARGV, '--jobs', $o{jobs};
 }
 
-if ($o{'lsf-redirect'} || $o{'lsf-tail'}) {
-    setup_log_directory();
-}
-
 if ($o{'lsf-interactive'}) {
     unshift @ARGV, '--exec', 'test-tracker-exec-lsf-interactive';
-}
-
-if ($o{'lsf-tail'}) {
-    unshift @ARGV, '--exec', 'test-tracker-exec-lsf-tail';
-}
-
-if ($o{'lsf-redirect'}) {
-    unshift @ARGV, '--exec', 'test-tracker-exec-lsf-redirect';
 }
 
 if ($o{'track'}) {
