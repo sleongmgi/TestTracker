@@ -39,11 +39,11 @@ sub git_base_dir {
 }
 
 sub changed_files_from_git {
-    my @git_args = @_;
+    my $diff_arg = shift;
 
     my @cmd = qw(git diff --name-only);
-    if (@git_args) {
-        push @cmd, @git_args;
+    if ($diff_arg) {
+        push @cmd, $diff_arg;
     }
 
     my @files = capture(@cmd);
@@ -258,11 +258,11 @@ sub git2rel {
 }
 
 sub tests_for_git_changes {
-    my @git_log_args = @_;
+    my $diff_arg = shift;
 
     my %config = TestTracker::Config::load();
 
-    my @changed_files = changed_files_from_git(@git_log_args);
+    my @changed_files = changed_files_from_git($diff_arg);
 
     my @tests;
     if (@changed_files) {
