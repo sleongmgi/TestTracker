@@ -23,13 +23,11 @@ my %o = TestTracker::parse_args(
     'iterate'         => 'iterate|i'
 );
 
-my $lsf = $o{'lsf'};
-
-if ($o{'track'} && $lsf) {
+if ($o{'track'} && $o{lsf}) {
     die '--track and --lsf are mutually exclusive options.';
 }
 
-if (!$o{jobs} && ($o{'track'} || $lsf)) {
+if (!$o{jobs} && ($o{'track'} || $o{lsf})) {
     $o{jobs} = 10;
 }
 
