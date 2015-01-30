@@ -147,13 +147,6 @@ sub print_revision_banner {
     print 'v' x 72, "\n";
 }
 
-sub revision_has_coverage {
-    my $rev = shift;
-    my $rev_list = "$rev^..$rev";
-    my @tests = capture('test-tracker', 'list', '--git', $rev_list);
-    return scalar(@tests);
-}
-
 sub duration_stats_for_tests {
     my $jobs = shift;
     my @tests = @_;
