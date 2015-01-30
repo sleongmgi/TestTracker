@@ -140,13 +140,6 @@ sub git_stash {
     return (@stash > @prev_stash);
 }
 
-sub print_revision_banner {
-    my $rev = shift;
-    print '*' x 72, "\n";
-    print "Testing Revision: $rev\n";
-    print 'v' x 72, "\n";
-}
-
 sub duration_stats_for_tests {
     my $jobs = shift;
     my @tests = @_;
