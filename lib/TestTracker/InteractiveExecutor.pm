@@ -9,7 +9,7 @@ use Symbol qw(gensym);
 sub main {
     my ($exec, $test_name) = @_;
 
-    my $queue = $ENV{'TEST_TRACKER_LSF_QUEUE'} || 'short';
+    my $queue = $ENV{TEST_TRACKER_LSF_QUEUE} || 'short';
 
     my $job_regex = '^Job <[0-9]+> is submitted to queue <' . $queue . '>.$';
 

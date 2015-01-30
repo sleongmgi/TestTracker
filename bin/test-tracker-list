@@ -21,7 +21,7 @@ if (@nonfiles) {
     exit 1;
 }
 
-if (!defined($options{'git'}) && !@files && !$options{'all'}) {
+if (!defined($options{git}) && !@files && !$options{all}) {
     pod2usage(2);
 }
 
@@ -30,11 +30,11 @@ if (@files) {
     push @git_files, TestTracker::rel2git(@files);
 }
 
-if (defined $options{'git'}) {
-    push @git_files, TestTracker::changed_files_from_git($options{'git'});
+if (defined $options{git}) {
+    push @git_files, TestTracker::changed_files_from_git($options{git});
 }
 
-if ($options{'all'}) {
+if ($options{all}) {
     push @git_files, TestTracker::all_tracked_tests();
 }
 
@@ -56,7 +56,7 @@ unless (@tests) {
 }
 
 my %modules_for_tests;
-if ($options{'explain'}) {
+if ($options{explain}) {
     %modules_for_tests = TestTracker::modules_for_tests(\@tests, \@git_files);
 }
 
@@ -69,7 +69,7 @@ for my $test_duration (@test_durations) {
     $total_duration += $duration;
 
     printf $format, $duration, $test;
-    if ($options{'explain'}) {
+    if ($options{explain}) {
         printf " "x12 . "Because of %s\n", join("\n" . " "x23, @{$modules_for_tests{$test}});
     }
 }

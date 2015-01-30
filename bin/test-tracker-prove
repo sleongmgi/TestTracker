@@ -23,15 +23,15 @@ my %o = TestTracker::parse_args(
     'iterate'         => 'iterate|i'
 );
 
-if ($o{'track'} && $o{lsf}) {
+if ($o{track} && $o{lsf}) {
     die '--track and --lsf are mutually exclusive options.';
 }
 
-if (!$o{jobs} && ($o{'track'} || $o{lsf})) {
+if (!$o{jobs} && ($o{track} || $o{lsf})) {
     $o{jobs} = 10;
 }
 
-if ($o{'junit'}) {
+if ($o{junit}) {
     unshift @ARGV, '--timer', '--formatter', 'TAP::Formatter::JUnit';
 }
 
@@ -39,11 +39,11 @@ if ($o{jobs}) {
     unshift @ARGV, '--jobs', $o{jobs};
 }
 
-if ($o{'lsf'}) {
+if ($o{lsf}) {
     unshift @ARGV, '--exec', 'test-tracker-exec-lsf-interactive';
 }
 
-if ($o{'track'}) {
+if ($o{track}) {
     print STDERR "Pruning TestTracker database...\n";
     prune_deleted_tests();
 
@@ -59,9 +59,9 @@ if ($o{iterate}) {
     my $rev_arg = $o{git};
     iterate($rev_arg, @ARGV);
 } else {
-    if ($o{'git'}) {
-        my @tests = TestTracker::tests_for_git_changes($o{'git'});
-        my $msg_suffix = sprintf("to run based on Git changes (%s)", $o{'git'});
+    if ($o{git}) {
+        my @tests = TestTracker::tests_for_git_changes($o{git});
+        my $msg_suffix = sprintf("to run based on Git changes (%s)", $o{git});
         unless (@tests) {
             printf STDERR "No tests %s.\n", $msg_suffix;
             exit 1;
