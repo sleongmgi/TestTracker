@@ -39,20 +39,24 @@ sub git_base_dir {
 }
 
 sub changed_files_from_git {
-    my @git_args = @_;
+    my $diff_arg = shift;
 
-    my @cmd = qw(git diff --name-only);
-    if (@git_args) {
-        push @cmd, @git_args;
+    if (not defined($diff_arg)) {
+        return;
     }
 
-    my @files = capture(@cmd);
+    my @files;
+    if ($diff_arg eq '') {
+        my @files_changed_from_upstream = capture(qw(git diff --name-only @{u}...HEAD));
+        my @files_changed_from_work_tree = capture(qw(git diff --name-only HEAD));
+        my @untracked_files = capture(qw(git ls-files --others --exclude-standard));
+        @files = uniq @files_changed_from_upstream, @files_changed_from_work_tree, @untracked_files;
+    }
+    else {
+        my @cmd = (qw(git diff --name-only), $diff_arg);
+        @files = capture(@cmd);
+    }
 
-    my @git_sz = git_status_z();
-    my @untracked_lines = grep { git_sz_is_untracked($_) } @git_sz;
-    my @untracked_files = map { (parse_git_status_z_line($_))[2] } @untracked_lines;
-
-    push @files, @untracked_files;
     chomp @files;
 
     my %config = TestTracker::Config::load();
@@ -258,11 +262,11 @@ sub git2rel {
 }
 
 sub tests_for_git_changes {
-    my @git_log_args = @_;
+    my $diff_arg = shift;
 
     my %config = TestTracker::Config::load();
 
-    my @changed_files = changed_files_from_git(@git_log_args);
+    my @changed_files = changed_files_from_git($diff_arg);
 
     my @tests;
     if (@changed_files) {
@@ -315,7 +319,6 @@ sub parse_args {
             print STDERR "test-tracker: --git option requires argument if an upstream branch is not set\n";
             exit(1);
         }
-        $options{git} = default_git_arg();
     }
 
     my $os_parser = new Getopt::Long::Parser;
@@ -325,10 +328,6 @@ sub parse_args {
     $os_parser->getoptions(@custom_options) or pod2usage(2);
 
     return %options;
-}
-
-sub default_git_arg {
-    return '@{u}';
 }
 
 sub format_duration {
@@ -341,27 +340,6 @@ sub format_duration {
     my $seconds = $remainder - $minutes*60;
 
     return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
-}
-
-sub git_status_z {
-    my @lines = capture('git', 'status', '-zs');
-    return @lines;
-}
-
-sub parse_git_status_z_line {
-    my $line = shift;
-    my ($x, $y, $paths) = $line =~ /(.)(.) (.*)/;
-    unless ($x) {
-        print STDERR "failed to parse status line: $line\n";
-    }
-    my ($now, $was) = split(/\0/, $paths);
-    return ($x, $y, $now, $was);
-}
-
-sub git_sz_is_untracked {
-    my $line = shift;
-    my ($x, $y) = parse_git_status_z_line($line);
-    return ($x eq '?' && $y eq '?');
 }
 
 sub get_test_id {
