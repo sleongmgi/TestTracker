@@ -34,8 +34,6 @@ my $test_dir = File::Temp->newdir(TMPDIR => 1);
 my $git_dir = create_a_repo($test_dir);
 chdir $git_dir;
 
-my $git_arg = TestTracker::default_git_arg();
-
 my $db_filename = db_filename();
 my $conf_filename = conf_filename();
 

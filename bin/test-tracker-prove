@@ -18,24 +18,20 @@ my %o = TestTracker::parse_args(
 #   'option'          => 'arg_schema',
     'junit'           => 'junit|j',
     'track'           => 'track|t',
-    'lsf-redirect'    => 'lsf-redirect',
-    'lsf-tail'        => 'lsf-tail',
-    'lsf-interactive' => 'lsf|l',
+    'lsf' => 'lsf|l',
     'jobs'            => 'jobs|j=i',
     'iterate'         => 'iterate|i'
 );
 
-my $lsf = ($o{'lsf-interactive' || $o{'lsf-redirect'}} || $o{'lsf-tail'});
-
-if ($o{'track'} && $lsf) {
+if ($o{track} && $o{lsf}) {
     die '--track and --lsf are mutually exclusive options.';
 }
 
-if (!$o{jobs} && ($o{'track'} || $lsf)) {
+if (!$o{jobs} && ($o{track} || $o{lsf})) {
     $o{jobs} = 10;
 }
 
-if ($o{'junit'}) {
+if ($o{junit}) {
     unshift @ARGV, '--timer', '--formatter', 'TAP::Formatter::JUnit';
 }
 
@@ -43,23 +39,11 @@ if ($o{jobs}) {
     unshift @ARGV, '--jobs', $o{jobs};
 }
 
-if ($o{'lsf-redirect'} || $o{'lsf-tail'}) {
-    setup_log_directory();
-}
-
-if ($o{'lsf-interactive'}) {
+if ($o{lsf}) {
     unshift @ARGV, '--exec', 'test-tracker-exec-lsf-interactive';
 }
 
-if ($o{'lsf-tail'}) {
-    unshift @ARGV, '--exec', 'test-tracker-exec-lsf-tail';
-}
-
-if ($o{'lsf-redirect'}) {
-    unshift @ARGV, '--exec', 'test-tracker-exec-lsf-redirect';
-}
-
-if ($o{'track'}) {
+if ($o{track}) {
     print STDERR "Pruning TestTracker database...\n";
     prune_deleted_tests();
 
@@ -75,9 +59,9 @@ if ($o{iterate}) {
     my $rev_arg = $o{git};
     iterate($rev_arg, @ARGV);
 } else {
-    if ($o{'git'}) {
-        my @tests = TestTracker::tests_for_git_changes($o{'git'});
-        my $msg_suffix = sprintf("to run based on Git changes (%s)", $o{'git'});
+    if ($o{git}) {
+        my @tests = TestTracker::tests_for_git_changes($o{git});
+        my $msg_suffix = sprintf("to run based on Git changes (%s)", $o{git});
         unless (@tests) {
             printf STDERR "No tests %s.\n", $msg_suffix;
             exit 1;
@@ -91,49 +75,9 @@ if ($o{iterate}) {
     exec prove(), @ARGV;
 }
 
-# Users want to see progress happening as fast as possible, which means running short tests first.
-# But running all the short tests first will mean less than optimal use of time overall, which users
-# won't appreciate.  This fn tries to order the tests to achieve a balance.
-sub sort_tests_for_optimal_user_experience {
-    my @durations_for_tests = @_;
-
-    my @dec_sorted_tests = map { $_->[0] } @durations_for_tests;
-
-    # simply alternate between fast and slow tests.
-    my $count = 1;
-    my @tests;
-    while (@dec_sorted_tests) {
-        if ($count % 2) {
-            push @tests, pop @dec_sorted_tests;
-        } else {
-            push @tests, shift @dec_sorted_tests;
-        }
-        $count++;
-    }
-
-    return TestTracker::git2rel(@tests);
-}
-
 sub prove {
     my %config = TestTracker::Config::load();
     return $config{prove} || 'prove';
-}
-
-sub setup_log_directory {
-    my %config = TestTracker::Config::load();
-    my $workspace = $config{lsf_log_dir};
-    my $username = getpwuid($>);
-    my $uuid_generator = new Data::UUID;
-    my $uuid = $uuid_generator->create_str();
-
-    # Since we are doing a make_path
-    die "cannot find workspace at $workspace" unless -d $workspace;
-
-    my $log_directory = File::Spec->join($workspace, "test_logs", $username, $uuid);
-    make_path($log_directory);
-    die "couldn't create $log_directory" unless -d $log_directory;
-
-    $ENV{TESTTRACKER_LOG_DIR} = $log_directory;
 }
 
 sub prune_deleted_tests {
@@ -161,20 +105,6 @@ sub git_stash {
     system('git stash save --include-untracked --quiet');
     my @stash = capture('git stash list');
     return (@stash > @prev_stash);
-}
-
-sub print_revision_banner {
-    my $rev = shift;
-    print '*' x 72, "\n";
-    print "Testing Revision: $rev\n";
-    print 'v' x 72, "\n";
-}
-
-sub revision_has_coverage {
-    my $rev = shift;
-    my $rev_list = "$rev^..$rev";
-    my @tests = capture('test-tracker', 'list', '--git', $rev_list);
-    return scalar(@tests);
 }
 
 sub duration_stats_for_tests {
@@ -211,30 +141,6 @@ sub iterate {
     my $test_cmd = join(' ', @test_cmd);
     local $ENV{GIT_EDITOR} = 'true';
     system('git', 'rebase', '--interactive', '--exec', $test_cmd, $rev_arg);
-}
-
-sub symbolic_head {
-    my $orig_rev = capture('git rev-parse --symbolic --abbrev-ref HEAD');
-    chomp $orig_rev;
-    return $orig_rev;
-}
-
-sub short_revisions {
-    my $rev_arg = shift;
-
-    # rev-list behavior is like log not like diff so add `..` if we don't think
-    # user supplied the git argument.
-    if ($rev_arg eq TestTracker::default_git_arg()
-        && index($rev_arg, '..') == -1
-    ) {
-        $rev_arg .= '..';
-    }
-
-    my @revs = capture('git', 'rev-list', '--reverse', $rev_arg);
-    chomp @revs;
-    my @short_revs = map { capture('git', 'rev-parse', '--short', $_) } @revs;
-    chomp @short_revs;
-    return @short_revs;
 }
 
 __END__

@@ -11,7 +11,6 @@ use IPC::System::Simple qw(capture);
 use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use TestTracker::Config;
-use autodie qw(:system);
 use Memoize "memoize";
 use Cwd "getcwd";
 
@@ -302,7 +301,10 @@ sub parse_args {
     pod2usage(1) if $help;
     pod2usage(-exitstatus => 0, -verbose => 2) if $man;
 
-    # --git is an optional string argument so if it is passed as last option and the users also passes an argument (test or module path) then Getopt::Long may mistakenly identify that as the value to this option. So we check if it is a file and throw it back on @ARGV if so.
+    # --git is an optional string argument so if it is passed as last option
+    # and the users also passes an argument (test or module path) then
+    # Getopt::Long may mistakenly identify that as the value to this option. So
+    # we check if it is a file and throw it back on @ARGV if so.
     if ($options{git} && -f $options{git}) {
         unshift @ARGV, $options{git};
     }
