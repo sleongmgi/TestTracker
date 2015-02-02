@@ -307,9 +307,14 @@ sub parse_args {
     # we check if it is a file and throw it back on @ARGV if so.
     if ($options{git} && -f $options{git}) {
         unshift @ARGV, $options{git};
+        $options{git} = '';
     }
 
     if (defined($options{git}) && $options{git} eq '') {
+        if (system('git rev-parse @{u} 1> /dev/null 2> /dev/null') != 0) {
+            print STDERR "test-tracker: --git option requires argument if an upstream branch is not set\n";
+            exit(1);
+        }
         $options{git} = default_git_arg();
     }
 
