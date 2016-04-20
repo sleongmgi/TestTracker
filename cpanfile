@@ -5,6 +5,7 @@ requires 'YAML';
 
 on 'test' => sub {
     requires 'DBD::SQLite';
+    requires 'Sub::Override';
 };
 
 on 'develop' => sub {
