@@ -2,6 +2,7 @@ requires 'DBI';
 requires 'IPC::System::Simple';
 requires 'List::MoreUtils';
 requires 'YAML';
+requires 'IPC::Run';
 
 on 'test' => sub {
     requires 'DBD::SQLite';
