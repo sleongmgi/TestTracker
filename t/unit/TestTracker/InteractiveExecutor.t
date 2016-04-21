@@ -8,12 +8,7 @@ use Try::Tiny;
 use_ok('IPC::Run');
 use_ok('TestTracker::InteractiveExecutor');
 
-&test_argument;
-&test_command;
-
-done_testing;
-
-sub test_argument {
+subtest 'test arguments' => sub {
     my @arguments = ( 'what', 'ever', 'work' );
     for ( 0, 1, 3 ) {
         eval { TestTracker::InteractiveExecutor::main( @arguments[ 0 .. ( $_ - 1 ) ] ); };
@@ -26,9 +21,9 @@ sub test_argument {
                 . ' than 2 arguments'
         );
     }
-}
+};
 
-sub test_command {
+subtest 'test command' => sub {
     my $sub_override = Sub::Override->new();
     $sub_override->replace(
         'TestTracker::InteractiveExecutor::run' => sub {
@@ -46,4 +41,6 @@ sub test_command {
     local $ENV{TEST_TRACKER_LSF_QUEUE} = 'test';
     TestTracker::InteractiveExecutor::main( 'what', 'ever' );
 
-}
+};
+
+done_testing;
