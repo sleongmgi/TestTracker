@@ -1,3 +1,9 @@
+libtesttracker-perl (0.038-1) lucid-genome-development; urgency=low
+
+  * Refactor TestTracker::InteractiveExecutor to use docker.
+
+ -- Shin Leong <sleong@wustl.edu>  Fri, 29 April 2016 07:44:35 -0500
+
 libtesttracker-perl (0.037-1) lucid; urgency=low
 
   * Allow prove executable to be specified by config.
